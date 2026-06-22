@@ -1,0 +1,25 @@
+{
+  "name": "SleepClick - Sledovanie Spánku",
+  "short_name": "SleepClick",
+  "description": "Mobilná aplikácia pre jednoduché sledovanie dĺžky a kvality spánku.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06091e",
+  "theme_color": "#0a1128",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

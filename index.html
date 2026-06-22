@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SleepClick — Spánok bábätka</title>
+  <meta name="description" content="Sledovanie spánku bábätka — intervaly, okná bdenia, 24h vizualizácia.">
+  <meta name="theme-color" content="#0a1128">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SleepClick">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Top Navbar -->
+  <header class="top-nav">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 512 512" width="28" height="28">
+        <path d="M320,180 C230,180 180,240 180,310 C180,360 210,400 250,420 C190,410 140,350 140,290 C140,200 210,130 300,130 C330,130 360,140 380,160 C360,170 340,180 320,180 Z" fill="#c084fc"/>
+      </svg>
+      <span class="brand-name">Sleep<span class="accent-text">Click</span></span>
+    </div>
+    <div class="header-actions">
+      <div class="lang-toggle">
+        <button id="langSK" class="lang-btn active">SK</button>
+        <button id="langEN" class="lang-btn">EN</button>
+      </div>
+      <button id="notifToggleBtn" class="btn-icon" data-i18n-title="header_notif">
+        <svg class="notif-on-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <svg class="notif-off-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+      <button id="pwaInstallBtn" class="btn-icon-secondary hidden" data-i18n-title="header_install">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </button>
+      <button id="themeToggleBtn" class="btn-icon" data-i18n-title="header_theme">
+        <svg class="sun-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="content-scroll">
+
+    <!-- PAGE 1: TRACKER -->
+    <section id="trackerPage" class="page-section active">
+
+      <!-- Status chip -->
+      <div id="statusIndicator" class="status-card idle">
+        <span class="status-dot"></span>
+        <span id="statusText" class="status-label">Bábätko bdie</span>
+      </div>
+
+      <!-- Timer circle -->
+      <div class="timer-display-container">
+        <div class="outer-glow-ring"></div>
+        <div class="timer-circle">
+          <span id="liveTimer" class="timer-text">00:00</span>
+          <span id="timerLabel" class="timer-subtext">Okno bdenia</span>
+        </div>
+      </div>
+
+      <!-- Main buttons -->
+      <div class="tracker-controls">
+        <button id="startBtn" class="control-btn start-glow" aria-label="Spustiť spánok">
+          <div class="btn-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <span class="btn-title" data-i18n="btn_sleep">SPÍ</span>
+            <span class="btn-subtitle" data-i18n="btn_sleep_sub">Zaspalo</span>
+          </div>
+        </button>
+        <button id="stopBtn" class="control-btn stop-glow" disabled aria-label="Ukončiť spánok">
+          <div class="btn-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><rect x="9" y="9" width="6" height="6"></rect></svg>
+            <span class="btn-title" data-i18n="btn_wake">HORE</span>
+            <span class="btn-subtitle" data-i18n="btn_wake_sub">Prebudilo sa</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Wake-up counter (visible when sleeping) -->
+      <div id="wakeUpRow" class="wakeup-row hidden">
+        <button id="wakeUpBtn" class="btn-wakeup">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span data-i18n="btn_wakeup">Prebudenie</span>
+        </button>
+        <span id="wakeUpCount" class="wakeup-count">0×</span>
+      </div>
+
+      <!-- Today summary card -->
+      <div class="today-card">
+        <div class="today-header">
+          <span class="today-title" data-i18n="today_title">Dnes</span>
+          <span id="todayTotalLabel" class="today-total">—</span>
+        </div>
+        <!-- Mini 24h timeline -->
+        <div id="miniTimeline" class="mini-timeline">
+          <div class="mini-tl-placeholder">Zatiaľ žiadne záznamy</div>
+        </div>
+        <!-- Today stats row -->
+        <div class="today-stats-row">
+          <div class="today-stat">
+            <span class="today-stat-label" data-i18n="today_night">🌙 Noc</span>
+<span id="todayNightVal" class="today-stat-val">—</span>
+          </div>
+          <div class="today-stat">
+            <span class="today-stat-label" data-i18n="today_day_sleeps">☀️ Denné spánky</span>
+            <span id="todayNapsVal" class="today-stat-val">—</span>
+          </div>
+          <div class="today-stat">
+            <span class="today-stat-label" data-i18n="today_longest">⏱ Najdlhší</span>
+            <span id="todayLongestVal" class="today-stat-val">—</span>
+          </div>
+          <div class="today-stat">
+            <span class="today-stat-label" data-i18n="today_night_fr">🔁 Noc. fr.</span>
+            <span id="todayNapCountVal" class="today-stat-val">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual entry button -->
+      <div class="manual-entry-hint">
+        <button id="manualEntryBtn" class="btn-manual-entry">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span data-i18n="btn_manual">Manuálny záznam</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- PAGE 2: STATISTICS -->
+    <section id="statsPage" class="page-section">
+
+      <!-- Summary cards for last baby day -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper purple">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="stat_night_sleep">Nočný spánok</span>
+            <span id="statNightSleep" class="stat-value">—</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper blue">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="stat_day_sleeps">Denné spánky</span>
+            <span id="statNapTotal" class="stat-value">—</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="stat_total_day">Celkom / deň</span>
+            <span id="statDayTotal" class="stat-value">—</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrapper orange">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="stat_longest">Najdlhší úsek</span>
+            <span id="statLongest" class="stat-value">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Night fragmentation analysis -->
+      <div id="nightFragCard" class="frag-card">
+        <div class="frag-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <span data-i18n="frag_title">Nočný spánok — fragmentácia</span>
+        </div>
+        <div class="frag-grid">
+          <div class="frag-item">
+            <span class="frag-label" data-i18n="frag_count">Úsekov noci</span>
+            <span id="fragCount" class="frag-value">—</span>
+          </div>
+          <div class="frag-item">
+            <span class="frag-label" data-i18n="frag_longest">Najdlhší úsek</span>
+            <span id="fragLongest" class="frag-value">—</span>
+          </div>
+          <div class="frag-item">
+            <span class="frag-label" data-i18n="frag_avg_gap">Priem. bdenie</span>
+            <span id="fragAvgGap" class="frag-value">—</span>
+          </div>
+          <div class="frag-item">
+            <span class="frag-label" data-i18n="frag_night_total">Spolu noc</span>
+            <span id="fragNightTotal" class="frag-value">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day mode toggle -->
+      <div class="day-mode-toggle">
+        <button id="dayModeBaby" class="day-mode-btn" data-i18n="day_mode_baby">🌙 Deň bábätka (20:00)</button>
+        <button id="dayModeMidnight" class="day-mode-btn" data-i18n="day_mode_midnight">🕛 Polnoc (00:00)</button>
+      </div>
+
+      <!-- 7-day 24h timeline chart -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title" data-i18n="chart_title">Posledných 7 dní</h3>
+            <span id="weekChartSubtitle" class="chart-subtitle">24h os (20:00 → 20:00)</span>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-dot night"></span><span class="legend-label" data-i18n="chart_legend_night">Noc</span>
+            <span class="legend-dot nap"></span><span class="legend-label" data-i18n="chart_legend_day">Denný spánok</span>
+          </div>
+        </div>
+        <div id="weekTimeline" class="week-timeline-wrapper">
+          <div class="chart-placeholder">Zatiaľ žiadne dáta</div>
+        </div>
+      </div>
+
+      <!-- History list -->
+      <div class="history-section">
+        <div class="history-header">
+          <h3 class="section-title" data-i18n="history_title">História</h3>
+          <div class="history-actions">
+            <button id="exportBtn" class="btn-text" data-i18n="history_export">Export</button>
+            <button id="importBtn" class="btn-text" data-i18n="history_import">Import</button>
+            <button id="mockDataBtn" class="btn-text btn-mock" data-i18n="history_mock">🧪 Mock</button>
+            <button id="clearAllBtn" class="btn-text btn-clear" data-i18n="history_clear">🗑 Vymazať</button>
+            <input type="file" id="importFileInput" accept=".json" class="hidden">
+          </div>
+        </div>
+        <div id="historyList" class="history-list">
+          <div class="history-placeholder">Žiadne záznamy. Kliknite SPÍ pre prvé meranie!</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="bottom-tab-nav">
+    <button id="tabTracker" class="tab-item active" aria-label="Meranie">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      <span class="tab-label" data-i18n="nav_tracker">Meranie</span>
+    </button>
+    <button id="tabStats" class="tab-item" aria-label="Štatistiky">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      <span class="tab-label" data-i18n="nav_stats">Štatistiky</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- MODAL: Day detail -->
+<div id="dayDetailModal" class="modal-overlay hidden day-detail-overlay">
+  <div class="modal-card day-detail-card">
+    <div class="day-detail-header">
+      <h2 id="dayDetailTitle" class="day-detail-title">—</h2>
+      <button id="dayDetailClose" class="day-detail-close" aria-label="Zavrieť">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="day-detail-body">
+      <div id="dayDetailTimeline" class="day-detail-timeline"></div>
+      <div id="dayDetailStats" class="day-detail-stats"></div>
+      <div id="dayDetailList" class="day-detail-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Save sleep (after stop) -->
+<div id="saveModal" class="modal-overlay hidden save-modal-overlay">
+  <div class="modal-card save-modal-card">
+    <div class="save-modal-header">
+      <span class="save-modal-title" data-i18n="save_title">Záznam spánku</span>
+      <strong id="summaryDuration" class="save-modal-duration">—</strong>
+    </div>
+    <div class="save-modal-body">
+      <div class="save-section-label" data-i18n="save_how">Ako prebiehal spánok?</div>
+      <div class="tags-grid save-tags-grid" id="saveTagsGrid">
+        <button class="tag-btn" data-tag="easy"><span class="tag-emoji">😴</span><span class="tag-label" data-i18n="tag_easy">Ľahko</span></button>
+        <button class="tag-btn" data-tag="crying"><span class="tag-emoji">😢</span><span class="tag-label" data-i18n="tag_crying">Plakalo</span></button>
+        <button class="tag-btn" data-tag="nursing"><span class="tag-emoji">🤱</span><span class="tag-label" data-i18n="tag_nursing">Nakojené</span></button>
+        <button class="tag-btn" data-tag="pacifier"><span class="tag-emoji">🍬</span><span class="tag-label" data-i18n="tag_pacifier">Cumlík</span></button>
+        <button class="tag-btn" data-tag="stroller"><span class="tag-emoji">🚗</span><span class="tag-label" data-i18n="tag_stroller">Kočík</span></button>
+        <button class="tag-btn" data-tag="sick"><span class="tag-emoji">🤒</span><span class="tag-label" data-i18n="tag_sick">Chorý</span></button>
+      </div>
+      <div class="save-section-label" data-i18n="save_wakeups">Počet prebudení</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" id="saveWakeUpMinus">−</button>
+        <span class="stepper-val" id="saveWakeUpVal">0</span>
+        <button class="stepper-btn" id="saveWakeUpPlus">+</button>
+      </div>
+      <div class="note-field-container">
+        <label for="saveNoteInput" class="input-label" data-i18n="save_note_label">Poznámka (voliteľné)</label>
+        <textarea id="saveNoteInput" data-i18n-placeholder="save_note_ph" placeholder="Napr. zaspalo počas kŕmenia..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="save-modal-footer">
+      <button id="discardSleepBtn" class="btn-secondary" data-i18n="save_discard">Zahodiť</button>
+      <button id="saveSleepBtn" class="btn-primary save-btn-primary" data-i18n="save_save">Uložiť</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Manual Entry -->
+<div id="manualModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title" data-i18n="manual_title">Manuálny záznam</h2>
+      <p class="modal-subtitle" data-i18n="manual_subtitle">Zadajte časy ručne</p>
+    </div>
+    <div class="modal-body">
+      <div class="datetime-input-group">
+        <label class="input-label" for="manualStart" data-i18n="manual_start">Zaspanie</label>
+        <input type="datetime-local" id="manualStart">
+      </div>
+      <div class="datetime-input-group">
+        <label class="input-label" for="manualEnd" data-i18n="manual_end">Prebudenie</label>
+        <input type="datetime-local" id="manualEnd">
+      </div>
+      <div class="tags-section">
+        <div class="input-label" data-i18n="manual_tags">Tagy</div>
+        <div class="tags-grid" id="manualTagsGrid">
+          <button class="tag-btn" data-tag="easy"><span class="tag-emoji">😴</span><span class="tag-label" data-i18n="tag_easy">Ľahko</span></button>
+          <button class="tag-btn" data-tag="crying"><span class="tag-emoji">😢</span><span class="tag-label" data-i18n="tag_crying">Plakalo</span></button>
+          <button class="tag-btn" data-tag="nursing"><span class="tag-emoji">🤱</span><span class="tag-label" data-i18n="tag_nursing">Nakojené</span></button>
+          <button class="tag-btn" data-tag="pacifier"><span class="tag-emoji">🍬</span><span class="tag-label" data-i18n="tag_pacifier">Cumlík</span></button>
+          <button class="tag-btn" data-tag="stroller"><span class="tag-emoji">🚗</span><span class="tag-label" data-i18n="tag_stroller">Kočík</span></button>
+          <button class="tag-btn" data-tag="sick"><span class="tag-emoji">🤒</span><span class="tag-label" data-i18n="tag_sick">Chorý</span></button>
+        </div>
+      </div>
+      <div class="wakeups-section">
+        <div class="input-label">Nočné prebudenia</div>
+        <div class="stepper-row">
+          <button class="stepper-btn" id="manualWakeUpMinus">−</button>
+          <span class="stepper-val" id="manualWakeUpVal">0</span>
+          <button class="stepper-btn" id="manualWakeUpPlus">+</button>
+        </div>
+      </div>
+      <div class="note-field-container">
+        <label for="manualNote" class="input-label" data-i18n="save_note_label">Poznámka (voliteľné)</label>
+        <textarea id="manualNote" data-i18n-placeholder="manual_note_ph" placeholder="Napr. zaspalo počas kŕmenia..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="cancelManualBtn" class="btn-secondary" data-i18n="manual_cancel">Zrušiť</button>
+      <button id="saveManualBtn" class="btn-primary" data-i18n="manual_save">Uložiť</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Record -->
+<div id="editModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title" data-i18n="edit_title">Upraviť záznam</h2>
+    </div>
+    <div class="modal-body">
+      <div class="datetime-input-group">
+        <label class="input-label" for="editStart" data-i18n="edit_start">Zaspanie</label>
+        <input type="datetime-local" id="editStart">
+      </div>
+      <div class="datetime-input-group">
+        <label class="input-label" for="editEnd" data-i18n="edit_end">Prebudenie</label>
+        <input type="datetime-local" id="editEnd">
+      </div>
+      <div class="tags-section">
+        <div class="input-label" data-i18n="edit_tags">Tagy</div>
+        <div class="tags-grid" id="editTagsGrid">
+          <button class="tag-btn" data-tag="easy"><span class="tag-emoji">😴</span><span class="tag-label" data-i18n="tag_easy">Ľahko</span></button>
+          <button class="tag-btn" data-tag="crying"><span class="tag-emoji">😢</span><span class="tag-label" data-i18n="tag_crying">Plakalo</span></button>
+          <button class="tag-btn" data-tag="nursing"><span class="tag-emoji">🤱</span><span class="tag-label" data-i18n="tag_nursing">Nakojené</span></button>
+          <button class="tag-btn" data-tag="pacifier"><span class="tag-emoji">🍬</span><span class="tag-label" data-i18n="tag_pacifier">Cumlík</span></button>
+          <button class="tag-btn" data-tag="stroller"><span class="tag-emoji">🚗</span><span class="tag-label" data-i18n="tag_stroller">Kočík</span></button>
+          <button class="tag-btn" data-tag="sick"><span class="tag-emoji">🤒</span><span class="tag-label" data-i18n="tag_sick">Chorý</span></button>
+        </div>
+      </div>
+      <div class="wakeups-section">
+        <div class="input-label" data-i18n="edit_wakeups">Nočné prebudenia</div>
+        <div class="stepper-row">
+          <button class="stepper-btn" id="editWakeUpMinus">−</button>
+          <span class="stepper-val" id="editWakeUpVal">0</span>
+          <button class="stepper-btn" id="editWakeUpPlus">+</button>
+        </div>
+      </div>
+      <div class="note-field-container">
+        <label for="editNote" class="input-label" data-i18n="edit_note">Poznámka</label>
+        <textarea id="editNote" data-i18n-placeholder="edit_note_ph" placeholder="Napr. zaspalo počas kŕmenia..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="cancelEditBtn" class="btn-secondary" data-i18n="edit_cancel">Zrušiť</button>
+      <button id="saveEditBtn" class="btn-primary" data-i18n="edit_save">Uložiť zmeny</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Confirm -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-card modal-card-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="confirmTitle">Potvrdiť</h2>
+      <p class="modal-subtitle" id="confirmMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button id="confirmCancelBtn" class="btn-secondary">Zrušiť</button>
+      <button id="confirmOkBtn" class="btn-danger">Potvrdiť</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

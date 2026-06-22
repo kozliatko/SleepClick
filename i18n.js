@@ -1,0 +1,218 @@
+// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+let currentLang = localStorage.getItem('sleepclick_lang') || 'sk';
+
+const TRANSLATIONS = {
+  sk: {
+    nav_tracker: 'Meranie', nav_stats: 'Štatistiky',
+    status_awake: 'Bábätko bdie', status_sleeping: 'Bábätko spí',
+    timer_wake_window: 'Okno bdenia', timer_sleeping: 'Spánok',
+    btn_sleep: 'SPÍ', btn_sleep_sub: 'Zaspalo',
+    btn_wake: 'HORE', btn_wake_sub: 'Prebudilo sa',
+    btn_wakeup: 'Prebudenie', btn_manual: 'Manuálny záznam',
+    today_title: 'Dnes', today_night: '🌙 Noc',
+    today_day_sleeps: '☀️ Denné spánky', today_longest: '⏱ Najdlhší',
+    today_night_fr: '🔁 Noc. fr.',
+    today_no_records: 'Zatiaľ žiadne záznamy',
+    stat_night_sleep: 'Nočný spánok', stat_day_sleeps: 'Denné spánky',
+    stat_total_day: 'Celkom / deň', stat_longest: 'Najdlhší úsek',
+    frag_title: 'Nočný spánok — fragmentácia', frag_count: 'Úsekov noci',
+    frag_longest: 'Najdlhší úsek', frag_avg_gap: 'Priem. bdenie',
+    frag_night_total: 'Spolu noc',
+    day_mode_baby: '🌙 Deň bábätka (20:00)', day_mode_midnight: '🕛 Polnoc (00:00)',
+    chart_title: 'Posledných 7 dní', chart_legend_night: 'Noc',
+    chart_legend_day: 'Denný spánok', history_title: 'História',
+    history_export: 'Export', history_import: 'Import',
+    history_mock: '🧪 Mock', history_clear: '🗑 Vymazať',
+    history_no_records: 'Žiadne záznamy. Kliknite SPÍ pre prvé meranie!',
+    history_night: '🌙 Nočný', history_day: '☀️ Denný spánok',
+    history_awake: 'bdenia',
+    tag_easy: 'Ľahko', tag_crying: 'Plakalo', tag_nursing: 'Nakojené',
+    tag_pacifier: 'Cumlík', tag_stroller: 'Kočík', tag_sick: 'Chorý',
+    save_title: 'Záznam spánku', save_duration_label: 'Trvanie:',
+    save_how: 'Ako prebiehal spánok?', save_wakeups: 'Počet prebudení',
+    save_note_label: 'Poznámka (voliteľné)', save_note_ph: 'Napr. zaspalo počas kŕmenia...',
+    save_discard: 'Zahodiť', save_save: 'Uložiť',
+    manual_title: 'Manuálny záznam', manual_subtitle: 'Zadajte časy ručne',
+    manual_start: 'Zaspanie', manual_end: 'Prebudenie',
+    manual_tags: 'Tagy', manual_wakeups: 'Nočné prebudenia',
+    manual_note_ph: 'Napr. zaspalo počas kŕmenia...',
+    manual_cancel: 'Zrušiť', manual_save: 'Uložiť',
+    edit_title: 'Upraviť záznam', edit_start: 'Zaspanie', edit_end: 'Prebudenie',
+    edit_tags: 'Tagy', edit_wakeups: 'Nočné prebudenia', edit_note: 'Poznámka',
+    edit_note_ph: 'Napr. zaspalo počas kŕmenia...',
+    edit_cancel: 'Zrušiť', edit_save: 'Uložiť zmeny',
+    days_long: ['Nedeľa','Pondelok','Utorok','Streda','Štvrtok','Piatok','Sobota'],
+    days_short: ['Ne','Po','Ut','St','Št','Pi','So'],
+    confirm_discard_title: 'Zahodiť meranie', confirm_discard_msg: 'Zahodiť tento záznam spánku?', confirm_discard_ok: 'Zahodiť',
+    confirm_delete_title: 'Zmazať záznam', confirm_delete_msg: 'Natrvalo zmazať tento záznam?', confirm_delete_ok: 'Zmazať',
+    confirm_mock_title: 'Načítať mock dáta', confirm_mock_msg: 'Nahradí všetky existujúce záznamy testovacími dátami (14 dní).', confirm_mock_ok: 'Načítať',
+    confirm_clear_title: 'Vymazať všetky dáta', confirm_clear_msg: 'Natrvalo zmazať všetky záznamy spánku?', confirm_clear_ok: 'Vymazať',
+    confirm_import_title: 'Importovať zálohu', confirm_import_ok: 'Importovať',
+    confirm_import_msg: (n) => `Importovať ${n} záznamov? Existujúce budú nahradené.`,
+    toast_sleep_started: 'Spánok spustený. 🌙',
+    toast_too_short: 'Spánok trval príliš krátko.',
+    toast_wakeup: 'Prebudenie zaznačené.',
+    toast_record_saved: 'Záznam uložený! 🎉',
+    toast_discarded: 'Meranie zrušené.',
+    toast_manual_saved: 'Manuálny záznam uložený. 📋',
+    toast_manual_fill: 'Vyplňte čas zaspania aj prebudenia.',
+    toast_manual_end_before_start: 'Čas prebudenia musí byť po čase zaspania.',
+    toast_manual_future: 'Čas prebudenia nemôže byť v budúcnosti.',
+    toast_deleted: 'Záznam vymazaný.',
+    toast_edited: 'Záznam upravený.',
+    toast_edit_check: 'Skontroluj časy záznamu.',
+    toast_edit_end_before_start: 'Koniec musí byť po začiatku.',
+    toast_exported: 'Dáta stiahnuté.',
+    toast_no_export: 'Žiadne dáta na export.',
+    toast_imported: 'Záloha obnovená! 📥',
+    toast_import_invalid: 'Neplatná štruktúra.',
+    toast_import_bad_format: 'Chybné formáty záznamov.',
+    toast_import_error: 'Chyba: ',
+    toast_mock: (n) => `Načítaných ${n} mock záznamov. 🧪`,
+    toast_cleared: 'Všetky záznamy vymazané.',
+    toast_light: 'Svetlý režim', toast_dark: 'Tmavý režim',
+    toast_notif_on: 'Notifikácie zapnuté 🔔', toast_notif_off: 'Notifikácie vypnuté 🔕',
+    toast_notif_blocked: 'Notifikácie sú zablokované v nastaveniach prehliadača.',
+    toast_notif_denied: 'Povolenie zamietnuté.',
+    toast_hotfix: (n) => `Hotfix: ${n} záznam${n > 1 ? 'y' : ''} rozdelené na hranici dňa.`,
+    notif_title: '🌙 Bábätko spí',
+    notif_body_start: (time) => `Zaspalo o ${time}`,
+    notif_body_elapsed: (elapsed, time) => `Spí už ${elapsed} · od ${time}`,
+    notif_action_stop: 'Zobudilo sa ⏹',
+    no_data_chart: 'Zatiaľ žiadne dáta',
+    chart_subtitle: (h) => `24h os (${h}:00 → ${h}:00)`,
+    dd_segments: '🔁 Úsekov', dd_total: '📊 Spolu',
+    history_wakeup_label: 'prebudenie',
+    confirm_ok: 'Potvrdiť',
+    btn_edit: 'Upraviť', btn_delete: 'Zmazať',
+    notif_tooltip_blocked: 'Notifikácie zablokované v prehliadači',
+    notif_tooltip_on: 'Notifikácie zapnuté — kliknúť pre vypnutie',
+    notif_tooltip_off: 'Notifikácie vypnuté — kliknúť pre zapnutie',
+    header_notif: 'Notifikácie', header_install: 'Inštalovať', header_theme: 'Prepnúť režim',
+  },
+  en: {
+    nav_tracker: 'Tracking', nav_stats: 'Statistics',
+    status_awake: 'Baby is awake', status_sleeping: 'Baby is sleeping',
+    timer_wake_window: 'Wake window', timer_sleeping: 'Sleeping',
+    btn_sleep: 'SLEEP', btn_sleep_sub: 'Fell asleep',
+    btn_wake: 'AWAKE', btn_wake_sub: 'Woke up',
+    btn_wakeup: 'Wake-up', btn_manual: 'Manual entry',
+    today_title: 'Today', today_night: '🌙 Night',
+    today_day_sleeps: '☀️ Day sleeps', today_longest: '⏱ Longest',
+    today_night_fr: '🔁 Night fr.',
+    today_no_records: 'No records yet',
+    stat_night_sleep: 'Night sleep', stat_day_sleeps: 'Day sleeps',
+    stat_total_day: 'Total / day', stat_longest: 'Longest stretch',
+    frag_title: 'Night sleep — fragmentation', frag_count: 'Night segments',
+    frag_longest: 'Longest segment', frag_avg_gap: 'Avg. awake',
+    frag_night_total: 'Night total',
+    day_mode_baby: '🌙 Baby day (20:00)', day_mode_midnight: '🕛 Midnight (00:00)',
+    chart_title: 'Last 7 days', chart_legend_night: 'Night',
+    chart_legend_day: 'Day sleep', history_title: 'History',
+    history_export: 'Export', history_import: 'Import',
+    history_mock: '🧪 Mock', history_clear: '🗑 Clear',
+    history_no_records: 'No records. Press SLEEP to start!',
+    history_night: '🌙 Night', history_day: '☀️ Day sleep',
+    history_awake: 'awake',
+    tag_easy: 'Easy', tag_crying: 'Crying', tag_nursing: 'Nursed',
+    tag_pacifier: 'Pacifier', tag_stroller: 'Stroller', tag_sick: 'Sick',
+    save_title: 'Sleep record', save_duration_label: 'Duration:',
+    save_how: 'How did the sleep go?', save_wakeups: 'Wake-ups',
+    save_note_label: 'Note (optional)', save_note_ph: 'E.g. fell asleep while nursing...',
+    save_discard: 'Discard', save_save: 'Save',
+    manual_title: 'Manual entry', manual_subtitle: 'Enter times manually',
+    manual_start: 'Fell asleep', manual_end: 'Woke up',
+    manual_tags: 'Tags', manual_wakeups: 'Night wake-ups',
+    manual_note_ph: 'E.g. fell asleep while nursing...',
+    manual_cancel: 'Cancel', manual_save: 'Save',
+    edit_title: 'Edit record', edit_start: 'Fell asleep', edit_end: 'Woke up',
+    edit_tags: 'Tags', edit_wakeups: 'Night wake-ups', edit_note: 'Note',
+    edit_note_ph: 'E.g. fell asleep while nursing...',
+    edit_cancel: 'Cancel', edit_save: 'Save changes',
+    days_long: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    days_short: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+    confirm_discard_title: 'Discard session', confirm_discard_msg: 'Discard this sleep record?', confirm_discard_ok: 'Discard',
+    confirm_delete_title: 'Delete record', confirm_delete_msg: 'Permanently delete this record?', confirm_delete_ok: 'Delete',
+    confirm_mock_title: 'Load mock data', confirm_mock_msg: 'This will replace all existing records with test data (14 days).', confirm_mock_ok: 'Load',
+    confirm_clear_title: 'Clear all data', confirm_clear_msg: 'Permanently delete all sleep records?', confirm_clear_ok: 'Clear',
+    confirm_import_title: 'Restore backup', confirm_import_ok: 'Import',
+    confirm_import_msg: (n) => `Import ${n} records? Existing records will be replaced.`,
+    toast_sleep_started: 'Sleep started. 🌙',
+    toast_too_short: 'Sleep was too short.',
+    toast_wakeup: 'Wake-up recorded.',
+    toast_record_saved: 'Record saved! 🎉',
+    toast_discarded: 'Session discarded.',
+    toast_manual_saved: 'Manual record saved. 📋',
+    toast_manual_fill: 'Please fill in both sleep and wake times.',
+    toast_manual_end_before_start: 'Wake time must be after sleep time.',
+    toast_manual_future: 'Wake time cannot be in the future.',
+    toast_deleted: 'Record deleted.',
+    toast_edited: 'Record updated.',
+    toast_edit_check: 'Please check the record times.',
+    toast_edit_end_before_start: 'End must be after start.',
+    toast_exported: 'Data downloaded.',
+    toast_no_export: 'No data to export.',
+    toast_imported: 'Backup restored! 📥',
+    toast_import_invalid: 'Invalid data structure.',
+    toast_import_bad_format: 'Invalid record format.',
+    toast_import_error: 'Error: ',
+    toast_mock: (n) => `Loaded ${n} mock records. 🧪`,
+    toast_cleared: 'All records deleted.',
+    toast_light: 'Light mode', toast_dark: 'Dark mode',
+    toast_notif_on: 'Notifications on 🔔', toast_notif_off: 'Notifications off 🔕',
+    toast_notif_blocked: 'Notifications are blocked in browser settings.',
+    toast_notif_denied: 'Permission denied.',
+    toast_hotfix: (n) => `Hotfix: ${n} record${n > 1 ? 's' : ''} split at day boundary.`,
+    notif_title: '🌙 Baby is sleeping',
+    notif_body_start: (time) => `Fell asleep at ${time}`,
+    notif_body_elapsed: (elapsed, time) => `Sleeping for ${elapsed} · since ${time}`,
+    notif_action_stop: 'Woke up ⏹',
+    no_data_chart: 'No data yet',
+    chart_subtitle: (h) => `24h axis (${h}:00 → ${h}:00)`,
+    dd_segments: '🔁 Segments', dd_total: '📊 Total',
+    history_wakeup_label: 'wake-up',
+    confirm_ok: 'Confirm',
+    btn_edit: 'Edit', btn_delete: 'Delete',
+    notif_tooltip_blocked: 'Notifications blocked in browser settings',
+    notif_tooltip_on: 'Notifications on — click to disable',
+    notif_tooltip_off: 'Notifications off — click to enable',
+    header_notif: 'Notifications', header_install: 'Install', header_theme: 'Toggle theme',
+  }
+};
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] || TRANSLATIONS.sk)[key] ?? key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.getAttribute('data-i18n-title'));
+  });
+}
+
+function setLang(lang) {
+  if (currentLang === lang) return;
+  currentLang = lang;
+  localStorage.setItem('sleepclick_lang', lang);
+  applyI18n();
+  updateLangUI();
+  // Re-render dynamic content
+  renderTodayCard();
+  if (typeof statsPage !== 'undefined' && statsPage.classList.contains('active')) renderStats();
+  else renderStats();
+  updateDayModeUI();
+}
+
+function updateLangUI() {
+  const skBtn = document.getElementById('langSK');
+  const enBtn = document.getElementById('langEN');
+  if (!skBtn || !enBtn) return;
+  skBtn.classList.toggle('active', currentLang === 'sk');
+  enBtn.classList.toggle('active', currentLang === 'en');
+}

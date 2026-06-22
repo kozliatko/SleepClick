@@ -1,0 +1,15 @@
+services:
+  sleepclick:
+    build: .
+    restart: unless-stopped
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: ${CADDY_DOMAIN}
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.encode: gzip zstd
+
+networks:
+  caddy:
+    external: true
