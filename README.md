@@ -2,6 +2,12 @@
 
 A progressive web app for tracking a baby's fragmented sleep patterns. Designed for exhausted parents who need to log sleep with one tap — including at 3 AM with one eye open.
 
+<p align="center">
+  <img src="screenshots/screenshot-tracker.png" width="280" alt="Tracking screen" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="screenshots/screenshot-stats.png" width="280" alt="Statistics screen" />
+</p>
+
 ## Features
 
 ### Tracking
