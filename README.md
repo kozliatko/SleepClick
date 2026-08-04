@@ -59,7 +59,7 @@ Free-text note per session. Tags rendered as chips in history.
 | Notifications | Push Notifications API, Service Worker actions |
 | Storage | `localStorage` (no backend, no account) |
 | Fonts | Outfit (self-hosted woff2) |
-| Server | Caddy 2 (static file server inside Docker) |
+| Server | nginx (static file server inside Docker) |
 | Deployment | Docker + [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) |
 
 ## Getting started
@@ -125,9 +125,9 @@ SleepClick stores all data exclusively in the browser's `localStorage`. Nothing 
 ├── sw.js               # service worker (cache + notifications)
 ├── manifest.json       # PWA manifest
 ├── mock-data.js        # browser-console mock data generator
-├── Dockerfile          # Caddy static server image
+├── Dockerfile          # nginx static server image
+├── nginx.conf          # nginx server block (static files on :80)
 ├── docker-compose.yml  # caddy-docker-proxy deployment
-├── Caddyfile           # Caddy config (static file server on :80)
 ├── fonts/              # self-hosted Outfit woff2
 └── icon*.{svg,png}     # app icons (192, 512, apple-touch-icon)
 ```

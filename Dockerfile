@@ -1,25 +1,21 @@
-FROM caddy:2-alpine
+FROM nginx:alpine
 
-# Copy Caddyfile config
-COPY Caddyfile /etc/caddy/Caddyfile
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy web assets to the Caddy root serving directory
-COPY index.html /usr/share/caddy/
-COPY style.css /usr/share/caddy/
-COPY app.js /usr/share/caddy/
-COPY i18n.js /usr/share/caddy/
-COPY manifest.json /usr/share/caddy/
-COPY sw.js /usr/share/caddy/
-COPY icon.svg /usr/share/caddy/
-COPY icon-192.png /usr/share/caddy/
-COPY icon-512.png /usr/share/caddy/
-COPY apple-touch-icon.png /usr/share/caddy/
-COPY apple-touch-icon-167.png /usr/share/caddy/
-COPY fonts/ /usr/share/caddy/fonts/
+COPY index.html /usr/share/nginx/html/
+COPY style.css /usr/share/nginx/html/
+COPY app.js /usr/share/nginx/html/
+COPY i18n.js /usr/share/nginx/html/
+COPY manifest.json /usr/share/nginx/html/
+COPY sw.js /usr/share/nginx/html/
+COPY icon.svg /usr/share/nginx/html/
+COPY icon-192.png /usr/share/nginx/html/
+COPY icon-512.png /usr/share/nginx/html/
+COPY apple-touch-icon.png /usr/share/nginx/html/
+COPY apple-touch-icon-167.png /usr/share/nginx/html/
+COPY fonts/ /usr/share/nginx/html/fonts/
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO /dev/null http://localhost:80/ || exit 1
+  CMD wget -qO /dev/null http://127.0.0.1:80/ || exit 1
 
-# Expose HTTP and HTTPS ports
 EXPOSE 80
-EXPOSE 443

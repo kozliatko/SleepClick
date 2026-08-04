@@ -5,6 +5,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-08-04
+
+### Changed
+- Replaced Caddy static server inside the Docker image with `nginx:alpine`
+- Added `nginx.conf` server block; removed `Caddyfile`
+- Fixed healthcheck URL from `localhost` to `127.0.0.1` (Alpine wget resolves `localhost` via IPv6)
+
+---
+
 ## [1.0.0] — 2026-06-22
 
 Initial public release.

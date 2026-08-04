@@ -24,6 +24,7 @@ No package manager, no bundler, no compilation. Edit files and reload.
 | `i18n.js` | Translation strings and helpers (`t()`, `applyI18n()`, `setLang()`) |
 | `style.css` | Design tokens (CSS custom properties) + component styles |
 | `sw.js` | Service Worker: cache strategy + notification click handling |
+| `nginx.conf` | nginx server block (static file serving on :80) |
 
 ## How to add a feature
 
