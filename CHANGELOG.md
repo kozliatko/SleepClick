@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Added
+- CodeQL static analysis workflow (`.github/workflows/codeql.yml`, JavaScript),
+  running on every push/PR to `main` and weekly on a schedule.
+- README badges: CodeQL status and latest GitHub release version.
+
+Tests/Codecov/Snyk badges weren't added: there's no test suite (no coverage
+data to report) and no dependency manifest (nothing for Snyk's dependency
+scan to check — this is a plain vanilla JS/HTML/CSS PWA with zero third-party
+packages).
+
+---
+
 ## [1.1.0] — 2026-08-04
 
 ### Changed

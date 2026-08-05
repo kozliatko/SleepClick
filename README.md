@@ -1,5 +1,8 @@
 # SleepClick
 
+[![CodeQL](https://github.com/kozliatko/SleepClick/actions/workflows/codeql.yml/badge.svg)](https://github.com/kozliatko/SleepClick/actions/workflows/codeql.yml)
+![Version](https://img.shields.io/github/v/release/kozliatko/SleepClick)
+
 A progressive web app for tracking a baby's fragmented sleep patterns. Designed for exhausted parents who need to log sleep with one tap — including at 3 AM with one eye open.
 
 <p align="center">
