@@ -1,5 +1,6 @@
 # SleepClick
 
+[![Security](https://github.com/kozliatko/SleepClick/actions/workflows/security.yml/badge.svg)](https://github.com/kozliatko/SleepClick/actions/workflows/security.yml)
 [![CodeQL](https://github.com/kozliatko/SleepClick/actions/workflows/codeql.yml/badge.svg)](https://github.com/kozliatko/SleepClick/actions/workflows/codeql.yml)
 ![Version](https://img.shields.io/github/v/release/kozliatko/SleepClick)
 ![License](https://img.shields.io/github/license/kozliatko/SleepClick)
