@@ -1,0 +1,13 @@
+project.manifest = manifest.xml
+
+# Shared code plus exactly one platform module. source-ciq3 uses
+# Application.Storage / Application.Properties (Connect IQ 2.4+);
+# source-ciq1 uses the older AppBase object store, which is all a
+# Connect IQ 1.x device such as the fr230 provides.
+base.resourcePath = resources/drawables/drawables.xml;resources/strings/strings.xml;resources/settings/settings.xml;resources/properties/properties.xml
+
+fr935.sourcePath = source;source-ciq3
+fr935.resourcePath = $(base.resourcePath)
+
+fr230.sourcePath = source;source-ciq1
+fr230.resourcePath = $(base.resourcePath)

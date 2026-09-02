@@ -289,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initPwa();
   initTrackerState();
+  initWatchSync();
 
   // Handle ?action=stop when app opens from notification button
   if (new URLSearchParams(location.search).get('action') === 'stop' && activeSleepStart) {
@@ -1043,6 +1044,101 @@ function deleteLogRecord(id) {
 // ─── PERSIST ──────────────────────────────────────────────────────────────────
 function persistLogs() {
   localStorage.setItem('sleepLogs', JSON.stringify(sleepLogs));
+}
+
+// ─── WATCH SYNC ───────────────────────────────────────────────────────────────
+// The backend only collects sessions pushed by the Garmin app; this pulls them
+// in. Records keep a "watch_" id prefix so re-fetching never duplicates them
+// and so their origin stays visible.
+const WATCH_ID_PREFIX = 'watch_';
+
+function setSyncStatus(message, type) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.textContent = message || '';
+  el.className = 'sync-status' + (type ? ' ' + type : '');
+}
+
+async function pullWatchSessions({ silent = false } = {}) {
+  const token = (localStorage.getItem('sleepclick_syncToken') || '').trim();
+  if (!token) {
+    if (!silent) setSyncStatus(t('sync_need_token'), 'error');
+    return 0;
+  }
+
+  if (!silent) setSyncStatus(t('sync_running'), '');
+
+  let payload;
+  try {
+    const res = await fetch('/api/sessions', {
+      headers: { Authorization: 'Bearer ' + token },
+      cache: 'no-store'
+    });
+    if (res.status === 401) {
+      if (!silent) setSyncStatus(t('sync_bad_token'), 'error');
+      return 0;
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    payload = await res.json();
+  } catch (_) {
+    if (!silent) setSyncStatus(t('sync_failed'), 'error');
+    return 0;
+  }
+
+  const incoming = Array.isArray(payload?.sessions) ? payload.sessions : [];
+  const known = new Set(sleepLogs.map(l => l.id));
+  let fresh = [];
+
+  for (const s of incoming) {
+    const id = WATCH_ID_PREFIX + s.id;
+    if (known.has(id)) continue;
+    const record = {
+      id,
+      startTime: new Date(s.start * 1000).toISOString(),
+      endTime: new Date(s.end * 1000).toISOString(),
+      wakeUps: Number(s.wakeUps) || 0,
+      tags: [],
+      note: ''
+    };
+    // A nap can straddle the baby-day boundary, so split it the same way
+    // records created in the app are split.
+    fresh = fresh.concat(splitSessionAtBoundaries(record));
+    known.add(id);
+  }
+
+  if (fresh.length === 0) {
+    if (!silent) setSyncStatus(t('sync_none'), '');
+    return 0;
+  }
+
+  sleepLogs = sleepLogs.concat(fresh);
+  sleepLogs.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+  persistLogs();
+
+  renderTodayCard();
+  if (statsPage.classList.contains('active')) renderStats();
+
+  if (!silent) setSyncStatus(t('sync_added')(fresh.length), 'success');
+  return fresh.length;
+}
+
+function initWatchSync() {
+  const input = document.getElementById('syncTokenInput');
+  const button = document.getElementById('syncNowBtn');
+  if (!input || !button) return;
+
+  input.value = localStorage.getItem('sleepclick_syncToken') || '';
+  input.addEventListener('change', () => {
+    localStorage.setItem('sleepclick_syncToken', input.value.trim());
+  });
+
+  button.addEventListener('click', () => {
+    localStorage.setItem('sleepclick_syncToken', input.value.trim());
+    pullWatchSessions();
+  });
+
+  // Quietly pick up anything the watch uploaded since the last visit.
+  if (input.value) pullWatchSessions({ silent: true });
 }
 
 // ─── THEME ────────────────────────────────────────────────────────────────────

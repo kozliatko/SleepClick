@@ -1,0 +1,4 @@
+<properties>
+  <property id="serverUrl" type="string">https://sleep.kozliatko.sk/api/sessions</property>
+  <property id="syncToken" type="string"></property>
+</properties>

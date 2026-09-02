@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Vytvorí /tmp/libsoup-2.4.so.1 a /tmp/libsoup-3.0.so.0
+# s vypnutými conflict-check konstruktormi.
+# Spusti po každom reštarte servera.
+python3 - << 'PY'
+import struct, shutil
+
+def patch_so(src, dst, patches):
+    with open(src, "rb") as f:
+        data = bytearray(f.read())
+    for off, old, new in patches:
+        assert data[off] == old, f"Unexpected byte {data[off]:#x} at {off:#x} (expected {old:#x})"
+        data[off] = new
+    with open(dst, "wb") as f:
+        f.write(data)
+    print(f"OK  {dst}")
+
+# libsoup3: constructor at 0x1e670 (push rbp→ret), trampoline at 0x1e7c0 (jmp→ret)
+patch_so(
+    "/lib/x86_64-linux-gnu/libsoup-3.0.so.0",
+    "/tmp/libsoup-3.0.so.0",
+    [(0x1e674, 0x55, 0xC3), (0x1e7c4, 0xe9, 0xC3)]
+)
+
+# libsoup2: constructor at 0x1f320 (push rbp→ret), trampoline at 0x1f480 (jmp→ret)
+patch_so(
+    "/lib/x86_64-linux-gnu/libsoup-2.4.so.1",
+    "/tmp/libsoup-2.4.so.1",
+    [(0x1f324, 0x55, 0xC3), (0x1f484, 0xe9, 0xC3)]
+)
+PY

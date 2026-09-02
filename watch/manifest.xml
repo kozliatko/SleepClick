@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+  <iq:application
+    entry="SleepClickApp"
+    id="3c5a8f2b-1d4e-4a7c-9b6d-0f2e8c1a3d5f"
+    launcherIcon="@Drawables.LauncherIcon"
+    name="@Strings.AppName"
+    minSdkVersion="1.4.0"
+    type="watch-app"
+    version="1.0.0">
+    <iq:products>
+      <iq:product id="fr935"/>
+      <iq:product id="fr230"/>
+    </iq:products>
+    <iq:permissions>
+      <iq:uses-permission id="Communications"/>
+    </iq:permissions>
+    <iq:languages>
+      <iq:language>eng</iq:language>
+    </iq:languages>
+  </iq:application>
+</iq:manifest>

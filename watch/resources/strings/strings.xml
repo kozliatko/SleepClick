@@ -1,0 +1,5 @@
+<strings>
+  <string id="AppName">SleepClick</string>
+  <string id="SettingServerUrl">Server URL</string>
+  <string id="SettingSyncToken">Sync token</string>
+</strings>

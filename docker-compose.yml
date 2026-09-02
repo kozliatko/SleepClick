@@ -7,9 +7,38 @@ services:
       - caddy
     labels:
       caddy: ${CADDY_DOMAIN}
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.handle: /*
+      caddy.handle.reverse_proxy: "{{upstreams 80}}"
       caddy.encode: gzip zstd
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      SYNC_TOKEN: ${SYNC_TOKEN}
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    volumes:
+      - backend_data:/data
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: ${CADDY_DOMAIN}
+      # More specific than the frontend's /* so Caddy matches it first.
+      # handle_path strips /api, so the server itself only sees /sessions.
+      caddy.handle_path: /api/*
+      caddy.handle_path.reverse_proxy: "{{upstreams 8080}}"
+      # Admin UI. Basic auth is enforced by the app itself, not here — the
+      # container is reachable from every service on the caddy network.
+      # handle (not handle_path) — the app routes on the /admin prefix, so it
+      # must survive the proxy hop.
+      caddy.handle_1: /admin*
+      caddy.handle_1.reverse_proxy: "{{upstreams 8080}}"
 
 networks:
   caddy:
     external: true
+
+volumes:
+  backend_data:

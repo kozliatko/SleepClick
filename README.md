@@ -60,6 +60,12 @@ Free-text note per session. Tags rendered as chips in history.
 - **Mock data** — load 14 days of realistic test data in one tap
 - **Clear all** — wipe all records with confirmation
 
+### Garmin watch app
+- **Start, stop and count wake-ups from the wrist** — no phone needed
+- **Offline-first** — sessions are kept on the watch until the server confirms them, so nothing is lost out of range
+- **Automatic sync** — on app start and after every finished session
+- Runs on **Forerunner 935** (Connect IQ 3.1) and **Forerunner 230** (Connect IQ 1.4)
+
 ## Tech stack
 
 | Layer | Technology |
@@ -67,7 +73,10 @@ Free-text note per session. Tags rendered as chips in history.
 | Frontend | Vanilla JS, CSS custom properties |
 | PWA | Service Worker (cache-first), Web App Manifest |
 | Notifications | Push Notifications API, Service Worker actions |
-| Storage | `localStorage` (no backend, no account) |
+| Storage (web) | `localStorage` — the PWA needs no account |
+| Watch app | Monkey C (Connect IQ), Forerunner 935 + 230 |
+| Sync backend | Node 24, zero npm dependencies (`node:http`, `node:crypto`, `node:sqlite`) |
+| Sync storage | SQLite, one file on a Docker volume |
 | Fonts | Outfit (self-hosted woff2) |
 | Server | nginx (static file server inside Docker) |
 | Deployment | Docker + [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) |
@@ -111,18 +120,78 @@ docker compose up -d
 ```
 
 The app will be available at `https://sleep.yourdomain.com` within seconds.
+Caddy routes `/` to nginx, `/api/*` to the sync backend and `/admin` to the
+admin UI, all on the one domain.
+
+## Watch sync
+
+Skip this section entirely if you only use the web app.
+
+### 1. Issue a token
+
+Open `https://sleep.yourdomain.com/admin`, sign in with `ADMIN_USER` /
+`ADMIN_PASSWORD`, add a user and mint a token for the device. **The token is
+shown once** — only its hash is stored, so it cannot be recovered afterwards.
+
+The CLI does the same thing when the web UI is unreachable:
+
+```bash
+docker compose exec backend node admin.js add-user janka
+docker compose exec backend node admin.js add-token janka "Janka's fr935"
+docker compose exec backend node admin.js list
+docker compose exec backend node admin.js revoke 4
+```
+
+Issue one token per device rather than per person, so a lost watch can be
+revoked without disturbing the others.
+
+### 2. Build and install the watch app
+
+Requires the Connect IQ SDK and a developer key (`make key` generates one).
+
+```bash
+cd watch
+make build DEVICE=fr935     # or fr230
+make deploy DEVICE=fr935    # copies the .prg to a connected watch
+```
+
+`deploy` needs the watch mounted as USB mass storage. The app is a `watch-app`,
+so it appears in the **activity list** (press START from the watch face), not
+in a separate Connect IQ menu.
+
+### 3. Enter the token
+
+The server URL is already baked in as a default. Only the token is missing —
+set it in Garmin Connect under the app's settings.
+
+Sideloaded apps do not always expose their settings there. If the fields are
+missing, put the token into `watch/resources/properties/properties.xml` and
+rebuild. Keep that out of version control.
+
+### 4. Pull the records into the web app
+
+Open **Statistics → Watch sync**, paste the same token and press *Fetch*.
+Imported records carry a `watch_` id prefix, so repeated fetches never
+duplicate them.
 
 ## Configuration
 
 | Variable | Description | Example |
 |---|---|---|
 | `CADDY_DOMAIN` | Public domain served by caddy-docker-proxy | `sleep.example.com` |
+| `SYNC_TOKEN` | Bootstrap token, 16+ chars. Only used to carry a pre-multi-user database over on first start; day-to-day tokens are minted in the admin UI | `openssl rand -hex 32` |
+| `ADMIN_USER` | Username for the admin UI at `/admin` | `admin` |
+| `ADMIN_PASSWORD` | Password for the admin UI, 12+ chars. Leave blank to disable the admin entirely | — |
 
 All user preferences (language, theme, day mode, notification opt-in) are stored in `localStorage` on the device. There is no server-side configuration.
 
 ## Data & privacy
 
-SleepClick stores all data exclusively in the browser's `localStorage`. Nothing is sent to any server. Exporting produces a plain JSON file that stays on your device.
+Sleep records created **in the web app** stay in the browser's `localStorage` and are never uploaded. Exporting produces a plain JSON file that stays on your device.
+
+The **Garmin watch app** is the one exception: it has nowhere else to put a finished session, so it pushes each one to the sync backend, and the web app pulls those records back down. That traffic carries only what the watch measures — start time, end time and wake-up count. No names, no notes, no tags, no device identifiers.
+
+Each token maps to exactly one user, and every query is scoped to that user, so two people sharing one backend cannot see each other's records. Tokens are stored as SHA-256 hashes; a leaked database does not yield usable credentials. Running the backend is optional — without it the PWA behaves exactly as it did before.
 
 ## Project structure
 
@@ -139,8 +208,26 @@ SleepClick stores all data exclusively in the browser's `localStorage`. Nothing 
 ├── nginx.conf          # nginx server block (static files on :80)
 ├── docker-compose.yml  # caddy-docker-proxy deployment
 ├── fonts/              # self-hosted Outfit woff2
-└── icon*.{svg,png}     # app icons (192, 512, apple-touch-icon)
+├── icon*.{svg,png}     # app icons (192, 512, apple-touch-icon)
+├── backend/            # sync API + admin UI
+│   ├── server.js       #   HTTP routing, session validation
+│   ├── db.js           #   schema, migrations, token hashing
+│   ├── admin-web.js    #   /admin routes behind basic auth
+│   ├── admin.html      #   admin single-page UI
+│   └── admin.js        #   CLI equivalent of the admin UI
+└── watch/              # Garmin Connect IQ app
+    ├── source/         #   shared Monkey C code
+    ├── source-ciq3/    #   Connect IQ 2.4+ platform layer (fr935)
+    ├── source-ciq1/    #   Connect IQ 1.x platform layer (fr230)
+    └── resources/      #   strings, settings, icons
 ```
+
+`source-ciq1` and `source-ciq3` exist because `Application.Storage` and
+`Application.Properties` do not exist on Connect IQ 1.x — the compiler accepts
+them but the device raises "Symbol Not Found" at runtime. Each directory holds
+a `Persistence` and a `Palette` module with matching interfaces; `monkey.jungle`
+picks one per device. The 4 bpp fr230 palette has no teal, so the awake state is
+green there and the split covers colours too.
 
 ## Contributing
 

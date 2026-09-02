@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sleepclick-cache-v12';
+const CACHE_NAME = 'sleepclick-cache-v13';
 const ASSETS = [
   './',
   './index.html',
@@ -31,6 +31,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // Never cache the sync API — it is live data, and a cached copy would make
+  // the watch's newest sessions invisible until the cache happened to refresh.
+  if (new URL(e.request.url).pathname.startsWith('/api/')) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) {

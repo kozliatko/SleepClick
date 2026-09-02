@@ -210,6 +210,20 @@
         <button id="dayModeMidnight" class="day-mode-btn" data-i18n="day_mode_midnight">🕛 Polnoc (00:00)</button>
       </div>
 
+      <!-- Watch sync -->
+      <div class="sync-card">
+        <div class="sync-header">
+          <span class="sync-title" data-i18n="sync_title">⌚ Synchronizácia s hodinkami</span>
+        </div>
+        <div class="sync-row">
+          <input id="syncTokenInput" class="sync-input" type="password"
+                 autocomplete="off" spellcheck="false"
+                 data-i18n-placeholder="sync_token_ph" placeholder="Sync token">
+          <button id="syncNowBtn" class="sync-btn" data-i18n="sync_now">Načítať</button>
+        </div>
+        <div id="syncStatus" class="sync-status"></div>
+      </div>
+
       <!-- 7-day 24h timeline chart -->
       <div class="chart-container">
         <div class="chart-header">

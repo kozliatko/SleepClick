@@ -1,0 +1,8 @@
+<settings>
+  <setting propertyKey="@Properties.serverUrl" title="@Strings.SettingServerUrl">
+    <settingConfig type="alphaNumeric" maxLength="128" />
+  </setting>
+  <setting propertyKey="@Properties.syncToken" title="@Strings.SettingSyncToken">
+    <settingConfig type="alphaNumeric" maxLength="128" />
+  </setting>
+</settings>

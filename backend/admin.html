@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>SleepClick — správa tokenov</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #2a3038;
+    --text: #e6edf3; --muted: #8892aa; --dim: #555f70;
+    --accent: #55aaff; --ok: #3fb950; --danger: #f85149; --warn: #ffaa00;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text);
+    font-family: var(--font); font-size: 15px; line-height: 1.5;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 22px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  }
+  .card-head {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .uname { font-weight: 600; }
+  .meta { color: var(--muted); font-size: 0.82rem; }
+
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 7px 0; border-top: 1px solid var(--border); font-size: 0.88rem; }
+  td:last-child { text-align: right; }
+  .tid { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .label { color: var(--text); }
+  .no-label { color: var(--dim); font-style: italic; }
+  .revoked { color: var(--danger); font-size: 0.78rem; }
+  .active { color: var(--ok); font-size: 0.78rem; }
+  .empty { color: var(--dim); font-size: 0.85rem; padding: 6px 0; }
+
+  input, button {
+    font-family: var(--font); font-size: 0.88rem; border-radius: 7px;
+    border: 1px solid var(--border); padding: 7px 10px;
+  }
+  input { background: #0b0f14; color: var(--text); min-width: 0; }
+  input:focus { outline: none; border-color: var(--accent); }
+  button {
+    background: #21262d; color: var(--text); cursor: pointer;
+    border-color: var(--border);
+  }
+  button:hover { background: #2d333b; }
+  button.primary { background: rgba(85,170,255,0.16); color: var(--accent); border-color: transparent; }
+  button.danger { background: transparent; color: var(--danger); border-color: transparent; padding: 4px 8px; }
+  button.danger:hover { background: rgba(248,81,73,0.12); }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row input { flex: 1; }
+
+  .token-out {
+    margin-top: 10px; padding: 11px; border-radius: 8px;
+    background: rgba(255,170,0,0.09); border: 1px solid rgba(255,170,0,0.35);
+  }
+  .token-out code {
+    display: block; word-break: break-all; font-size: 0.82rem;
+    color: var(--warn); margin-top: 6px;
+  }
+  .token-out .why { font-size: 0.78rem; color: var(--muted); }
+  .msg { font-size: 0.82rem; margin-top: 8px; min-height: 1em; }
+  .msg.err { color: var(--danger); }
+  .msg.ok { color: var(--ok); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SleepClick — správa tokenov</h1>
+  <div class="sub">Každý používateľ vidí výhradne vlastné dáta. Token vydávaj na zariadenie, nie na osobu — potom sa dá odvolať jedno bez zásahu do ostatných.</div>
+
+  <div id="users"></div>
+
+  <div class="card">
+    <div class="card-head"><span class="uname">Nový používateľ</span></div>
+    <div class="row">
+      <input id="newUser" placeholder="meno" maxlength="40" autocomplete="off">
+      <button class="primary" id="addUser">Pridať</button>
+    </div>
+    <div class="msg" id="userMsg"></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function api(path, options) {
+  const res = await fetch(path, {
+    headers: { 'content-type': 'application/json' },
+    cache: 'no-store',
+    ...options,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  return data;
+}
+
+function render(users) {
+  const host = $('users');
+  host.innerHTML = '';
+
+  if (users.length === 0) {
+    host.innerHTML = '<div class="card"><div class="empty">Zatiaľ žiadni používatelia.</div></div>';
+    return;
+  }
+
+  for (const u of users) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const rows = u.tokens.map((t) => `
+      <tr>
+        <td class="tid">#${t.id}</td>
+        <td class="${t.label ? 'label' : 'no-label'}">${t.label ? esc(t.label) : 'bez označenia'}</td>
+        <td class="${t.revoked ? 'revoked' : 'active'}">${t.revoked ? 'odvolaný' : 'aktívny'}</td>
+        <td>${t.revoked ? '' : `<button class="danger" data-revoke="${t.id}">Odvolať</button>`}</td>
+      </tr>`).join('');
+
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="uname">${esc(u.name)}</span>
+        <span class="meta">${u.sessions} spánkov</span>
+      </div>
+      ${rows ? `<table>${rows}</table>` : '<div class="empty">Žiadne tokeny.</div>'}
+      <div class="row" style="margin-top:10px">
+        <input placeholder="označenie zariadenia, napr. Janove fr935"
+               maxlength="40" autocomplete="off" data-label="${u.id}">
+        <button data-mint="${u.id}">Vydať token</button>
+      </div>
+      <div class="msg" data-msg="${u.id}"></div>`;
+    host.appendChild(card);
+  }
+}
+
+async function refresh() {
+  try {
+    const { users } = await api('/admin/data');
+    render(users);
+  } catch (e) {
+    $('users').innerHTML = '<div class="card"><div class="msg err">Načítanie zlyhalo: ' + esc(e.message) + '</div></div>';
+  }
+}
+
+document.addEventListener('click', async (ev) => {
+  const mint = ev.target.getAttribute?.('data-mint');
+  const revoke = ev.target.getAttribute?.('data-revoke');
+
+  if (mint) {
+    const id = Number(mint);
+    const label = document.querySelector(`[data-label="${id}"]`).value.trim();
+    const msg = document.querySelector(`[data-msg="${id}"]`);
+    try {
+      const { token } = await api('/admin/tokens', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: id, label }),
+      });
+      msg.className = 'msg';
+      msg.innerHTML = `<div class="token-out">
+        <div class="why">Ukladám iba hash — token sa už znovu zobraziť nedá. Skopíruj ho teraz.</div>
+        <code>${esc(token)}</code></div>`;
+      // Re-render would wipe the token, so refresh only the counts around it.
+    } catch (e) {
+      msg.className = 'msg err';
+      msg.textContent = 'Nepodarilo sa: ' + e.message;
+    }
+    return;
+  }
+
+  if (revoke) {
+    if (!confirm('Odvolať token #' + revoke + '? Zariadenie prestane synchronizovať okamžite.')) return;
+    try {
+      await api('/admin/revoke', {
+        method: 'POST',
+        body: JSON.stringify({ token_id: Number(revoke) }),
+      });
+      refresh();
+    } catch (e) {
+      alert('Nepodarilo sa: ' + e.message);
+    }
+  }
+});
+
+$('addUser').addEventListener('click', async () => {
+  const input = $('newUser');
+  const msg = $('userMsg');
+  const name = input.value.trim();
+  if (!name) { msg.className = 'msg err'; msg.textContent = 'Zadaj meno.'; return; }
+  try {
+    await api('/admin/users', { method: 'POST', body: JSON.stringify({ name }) });
+    input.value = '';
+    msg.className = 'msg ok';
+    msg.textContent = 'Používateľ pridaný.';
+    refresh();
+  } catch (e) {
+    msg.className = 'msg err';
+    msg.textContent = e.message === 'name_taken' ? 'Také meno už existuje.'
+                    : e.message === 'invalid_name' ? 'Meno smie mať len písmená, číslice, medzeru, bodku, pomlčku alebo podčiarkovník.'
+                    : 'Nepodarilo sa: ' + e.message;
+  }
+});
+
+refresh();
+</script>
+</body>
+</html>

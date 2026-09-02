@@ -8,6 +8,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **Garmin Connect IQ watch app** (`watch/`) for Forerunner 935 and 230 — start
+  and stop a sleep session from the wrist, count wake-ups, live timer with a
+  moon/sun state icon. Sessions stay on the watch until the server confirms
+  them, so nothing is lost while out of range.
+- **Sync backend** (`backend/`) — Node 24 with no npm dependencies, storing
+  sessions in SQLite. `POST /api/sessions` takes a batch from the watch,
+  `GET /api/sessions` serves them back to the PWA.
+- **Multi-user tokens** — each token maps to one user and every query is scoped
+  to that user, so several families can share one deployment. Tokens are stored
+  as SHA-256 hashes and can be revoked per device.
+- **Admin UI** at `/admin` behind basic auth: add users, mint tokens, revoke
+  them. `backend/admin.js` is the CLI equivalent.
+- **Watch sync card** in the PWA statistics tab — pulls watch records and merges
+  them by a `watch_` id prefix, so re-fetching cannot duplicate entries.
+
+### Fixed
+- Service worker cached every same-origin `GET`, including `/api/sessions`,
+  which could hide the watch's newest sessions behind a stale copy. The API is
+  now excluded from the cache and `CACHE_NAME` moved to `v13`.
+- `make deploy` looked only in `/run/media/$USER`, so it reported "watch not
+  connected" on Ubuntu, where udisks2 mounts to `/media/$USER`. It now checks
+  both, verifies `GARMIN/APPS` exists and calls `sync` before finishing.
+
+### Changed
+- The watch project moved into this repository as `watch/`; it previously lived
+  outside version control and had no secret scanning.
 - CodeQL static analysis workflow (`.github/workflows/codeql.yml`, JavaScript),
   running on every push/PR to `main` and weekly on a schedule.
 - README badges: CodeQL status and latest GitHub release version.

@@ -1,0 +1,14 @@
+{
+  "name": "sleepclick-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sync endpoint collecting sleep sessions from the Garmin watch app",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

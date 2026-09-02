@@ -1,1 +1,8 @@
 .env
+
+# Garmin watch app (watch/)
+build/
+*.prg
+*.iq
+*.der
+*.pem

@@ -1402,6 +1402,70 @@ textarea:focus { border-color: var(--ac-secondary); }
   color: var(--ac-secondary);
 }
 
+/* ─── WATCH SYNC ─────────────────────────────────────────────────────────── */
+.sync-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bd-default);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.sync-header { margin-bottom: 9px; }
+
+.sync-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--tx-secondary);
+}
+
+.sync-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sync-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--bd-default);
+  border-radius: 9px;
+  padding: 9px 10px;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  color: var(--tx-primary);
+}
+
+.sync-input:focus {
+  outline: none;
+  border-color: var(--ac-secondary);
+}
+
+.sync-btn {
+  background: rgba(var(--ac-primary-rgb), 0.18);
+  border: none;
+  border-radius: 9px;
+  padding: 9px 14px;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ac-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sync-btn:hover { background: rgba(var(--ac-primary-rgb), 0.28); }
+
+.sync-status {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--tx-muted);
+  min-height: 1em;
+}
+
+.sync-status.success { color: var(--ok-text); }
+.sync-status.error   { color: var(--stop-glow); }
+
 /* ─── WEEK TIMELINE — CLICKABLE ROWS ────────────────────────────────────── */
 .day-row-hit { fill: transparent; cursor: pointer; transition: fill 0.15s; }
 .day-row-hit:hover { fill: rgba(255, 255, 255, 0.06); }
