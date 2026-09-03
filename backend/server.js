@@ -147,9 +147,14 @@ function handleGet(res, url, userId) {
   return send(res, 200, { sessions: rows });
 }
 
+// Every route below matches the full path the client asked for. Caddy proxies
+// with `handle`, never `handle_path`, so no prefix is stripped on the way in
+// and a path means the same thing here as it does in a browser's address bar.
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
 
+  // Not routed by Caddy, so this is reachable only from inside the Docker
+  // network — which is exactly what the container healthcheck needs.
   if (url.pathname === '/health') {
     return send(res, 200, { ok: true });
   }
@@ -164,7 +169,7 @@ const server = createServer(async (req, res) => {
     return send(res, 500, { error: 'internal_error' });
   }
 
-  if (url.pathname !== '/sessions') {
+  if (url.pathname !== '/api/sessions') {
     return send(res, 404, { error: 'not_found' });
   }
 

@@ -123,6 +123,14 @@ The app will be available at `https://sleep.yourdomain.com` within seconds.
 Caddy routes `/` to nginx, `/api/*` to the sync backend and `/admin` to the
 admin UI, all on the one domain.
 
+Every route is a Caddy `handle` block — never `handle_path`. The prefix is not
+stripped on the way in, so a path means the same thing in `server.js` as it
+does in the browser's address bar. Caddy orders `handle` blocks by path
+specificity, so the two backend routes win over the frontend's `/*` catch-all
+no matter which container Caddy discovers first. Adding a route means copying
+a `handle_N` pair with the next index; there is no per-route exception to
+remember.
+
 ## Watch sync
 
 Skip this section entirely if you only use the web app.

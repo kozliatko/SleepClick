@@ -7,6 +7,9 @@ services:
       - caddy
     labels:
       caddy: ${CADDY_DOMAIN}
+      # Catch-all. Caddy orders handle blocks by path specificity, not by the
+      # order it discovers containers, so the backend's routes below win over
+      # this one regardless of which container starts first.
       caddy.handle: /*
       caddy.handle.reverse_proxy: "{{upstreams 80}}"
       caddy.encode: gzip zstd
@@ -25,14 +28,15 @@ services:
       - caddy
     labels:
       caddy: ${CADDY_DOMAIN}
-      # More specific than the frontend's /* so Caddy matches it first.
-      # handle_path strips /api, so the server itself only sees /sessions.
-      caddy.handle_path: /api/*
-      caddy.handle_path.reverse_proxy: "{{upstreams 8080}}"
+      # One rule for every route in this project: `handle`, never `handle_path`.
+      # The prefix survives the proxy hop, so a path means the same thing in
+      # server.js as it does in the browser's address bar. Nothing to remember
+      # per route, and adding one is copy-paste plus a new index.
+      caddy.handle_0: /api/*
+      caddy.handle_0.reverse_proxy: "{{upstreams 8080}}"
       # Admin UI. Basic auth is enforced by the app itself, not here — the
-      # container is reachable from every service on the caddy network.
-      # handle (not handle_path) — the app routes on the /admin prefix, so it
-      # must survive the proxy hop.
+      # container is reachable from every service on the caddy network, so a
+      # gate only at the proxy would leave it open from inside.
       caddy.handle_1: /admin*
       caddy.handle_1.reverse_proxy: "{{upstreams 8080}}"
 
