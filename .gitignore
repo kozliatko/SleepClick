@@ -6,3 +6,7 @@ build/
 *.iq
 *.der
 *.pem
+
+# Watch sync token baked in at build time — never commit
+watch/.token
+*.xml.bak
