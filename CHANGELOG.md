@@ -5,6 +5,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Changed
+- All developer-facing text is English: comments, build script output, the
+  gitleaks config and the security workflow's step names. User-facing copy is
+  untouched — the SK/EN strings in `i18n.js`, the Slovak markup in
+  `index.html` and `backend/admin.html` (both `lang="sk"`), the PWA name in
+  `manifest.json`, and the watch's on-screen labels are product content, not
+  comments.
+
+### Removed
+- `watch/bin/sim` and `watch/bin/build-stub`. They patched the system libsoup
+  libraries at hardcoded byte offsets to work around the libsoup2/libsoup3
+  conflict — an approach superseded by the `LD_PRELOAD` shim in
+  `watch/tools/soupfix.c`, which needs no binary patching. `bin/sim` had also
+  been broken since the build started emitting per-device filenames: it still
+  looked for `build/SleepClick.prg`. Use `make sim` and
+  [`watch/SIMULATOR.md`](watch/SIMULATOR.md) instead.
+
+---
+
 ## [1.3.1] — 2026-09-04
 
 ### Fixed

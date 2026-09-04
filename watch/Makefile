@@ -23,9 +23,9 @@ define with_token
 	  cp $(PROPS) $(PROPS).bak; \
 	  tok=$$(tr -d ' \t\n\r' < $(TOKEN)); \
 	  sed -i "s|\(id=\"syncToken\" type=\"string\"\)></property>|\1>$$tok</property>|" $(PROPS); \
-	  echo "Token vložený z $(TOKEN) (do gitu sa nedostane)"; \
+	  echo "Token baked in from $(TOKEN) (never reaches git)"; \
 	else \
-	  echo "Bez $(TOKEN) — appka sa zostaví s prázdnym tokenom a synchronizovať nebude."; \
+	  echo "No $(TOKEN) — building with an empty token; the app will not sync."; \
 	fi
 endef
 
@@ -51,14 +51,14 @@ sim: build
 deploy: build
 	@MOUNT=$$(ls -d /media/$$USER/GARMIN /run/media/$$USER/GARMIN /media/GARMIN 2>/dev/null | head -1); \
 	if [ -z "$$MOUNT" ]; then \
-	  echo "Hodinky nie sú pripojené (hľadal som /media/$$USER/GARMIN a /run/media/$$USER/GARMIN)."; \
-	  echo "Skontroluj, že sú v režime USB mass storage: lsblk -o NAME,LABEL,MOUNTPOINT | grep -i garmin"; \
+	  echo "Watch not connected (looked in /media/$$USER/GARMIN and /run/media/$$USER/GARMIN)."; \
+	  echo "Check that it is in USB mass storage mode: lsblk -o NAME,LABEL,MOUNTPOINT | grep -i garmin"; \
 	  exit 1; \
 	fi; \
-	test -d "$$MOUNT/GARMIN/APPS" || { echo "Na $$MOUNT chýba GARMIN/APPS — je to naozaj disk hodiniek?"; exit 1; }; \
+	test -d "$$MOUNT/GARMIN/APPS" || { echo "$$MOUNT has no GARMIN/APPS — is that really the watch volume?"; exit 1; }; \
 	cp $(OUT) $$MOUNT/GARMIN/APPS/; \
 	sync; \
-	echo "Nahraté: $(OUT) -> $$MOUNT/GARMIN/APPS/"
+	echo "Installed: $(OUT) -> $$MOUNT/GARMIN/APPS/"
 
 # Build every supported device with warnings and strict type checking, without
 # touching the token or the build/ output. The fr230 lines about deprecated
@@ -75,9 +75,9 @@ check:
 	exit $$rc
 
 token-help:
-	@echo "Token vydaj v admine na https://sleep.kozliatko.sk/admin a ulož ho:"
+	@echo "Mint a token in the admin UI at https://sleep.kozliatko.sk/admin, then:"
 	@echo "  echo '<token>' > watch/.token"
-	@echo "Potom: make build DEVICE=fr935"
+	@echo "Then: make build DEVICE=fr935"
 
 clean:
 	rm -rf build
@@ -85,8 +85,8 @@ clean:
 
 key:
 	@mkdir -p $(HOME)/.garmin
-	@if [ -f $(KEY) ]; then echo "Kluč už existuje: $(KEY)"; exit 0; fi
+	@if [ -f $(KEY) ]; then echo "Key already exists: $(KEY)"; exit 0; fi
 	openssl genrsa -out $(HOME)/.garmin/developer_key.pem 4096
 	openssl pkcs8 -topk8 -inform PEM -outform DER \
 	  -in $(HOME)/.garmin/developer_key.pem -out $(KEY) -nocrypt
-	@echo "Kluč vygenerovaný: $(KEY)"
+	@echo "Key generated: $(KEY)"

@@ -38,7 +38,7 @@ No package manager, no bundler, no compilation. Edit files and reload.
 ```js
 // i18n.js — add to both language objects:
 sk: {
-  my_new_key: 'Slovenský text',
+  my_new_key: 'Slovak text',
 },
 en: {
   my_new_key: 'English text',

@@ -1,4 +1,4 @@
-name: Security — kontrola citlivých dát
+name: Security — secret scanning
 
 on:
   push:
@@ -12,15 +12,15 @@ permissions:
 
 jobs:
   gitleaks:
-    name: Gitleaks — sken tajomstiev v kóde a git histórii
+    name: Gitleaks — scan code and git history for secrets
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (plná história)
+      - name: Checkout (full history)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Spusti gitleaks
+      - name: Run gitleaks
         run: |
           docker run --rm \
             -v "$(pwd)":/repo \

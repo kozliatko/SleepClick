@@ -31,8 +31,8 @@
     const base = now.getTime() - dayOffset * 86400000;
     const prevBase = base - 86400000;
 
-    // Nočný spánok: začína predchádzajúci večer ~21:00-22:30, trvá 7-9h
-    const nightStart = randInt(21 * 60, 22 * 60 + 30); // minúty od polnoci
+    // Night sleep: starts the previous evening ~21:00-22:30, runs 7-9h
+    const nightStart = randInt(21 * 60, 22 * 60 + 30); // minutes from midnight
     const nightDur = randInt(7 * 60, 9 * 60);
     const nightWakeUps = randInt(0, 2);
     logs.push(makeSession(
@@ -44,17 +44,17 @@
       Math.random() < 0.5 ? ['nursing'] : []
     ));
 
-    // Predpoludňajší výdrimok: ~09:00-10:00, 45-90 min
+    // Morning nap: ~09:00-10:00, 45-90 min
     const nap1Start = randInt(8 * 60 + 30, 10 * 60);
     const nap1Dur = randInt(45, 90);
     logs.push(makeSession(base, Math.floor(nap1Start / 60), nap1Start % 60, nap1Dur, 0, pickTags()));
 
-    // Poobedný výdrimok: ~13:00-14:00, 60-120 min
+    // Afternoon nap: ~13:00-14:00, 60-120 min
     const nap2Start = randInt(12 * 60 + 30, 14 * 60);
     const nap2Dur = randInt(60, 120);
     logs.push(makeSession(base, Math.floor(nap2Start / 60), nap2Start % 60, nap2Dur, 0, pickTags()));
 
-    // Večerný výdrimok (60% pravdepodobnosť): ~16:00-17:00, 20-40 min
+    // Evening nap (60% chance): ~16:00-17:00, 20-40 min
     if (Math.random() < 0.6) {
       const nap3Start = randInt(15 * 60 + 30, 17 * 60);
       const nap3Dur = randInt(20, 40);
@@ -62,10 +62,10 @@
     }
   }
 
-  // Zoraď od najnovšieho a ulož
+  // Sort newest first and store
   logs.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
   localStorage.setItem('sleepLogs', JSON.stringify(logs));
 
-  console.log(`✅ Vygenerovaných ${logs.length} záznamov za 14 dní. Obnov stránku.`);
-  alert(`✅ Nahraté ${logs.length} mock záznamov. Obnov stránku (F5).`);
+  console.log(`✅ Generated ${logs.length} records across 14 days. Reload the page.`);
+  alert(`✅ Loaded ${logs.length} mock records. Reload the page (F5).`);
 })();
