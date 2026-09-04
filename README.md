@@ -224,10 +224,12 @@ Each token maps to exactly one user, and every query is scoped to that user, so 
 │   ├── admin.html      #   admin single-page UI
 │   └── admin.js        #   CLI equivalent of the admin UI
 └── watch/              # Garmin Connect IQ app
+    ├── SIMULATOR.md    #   runbook: headless simulator, VNC, loading a .prg
     ├── source/         #   shared Monkey C code
     ├── source-ciq3/    #   Connect IQ 2.4+ platform layer (fr935)
     ├── source-ciq1/    #   Connect IQ 1.x platform layer (fr230)
-    └── resources/      #   strings, settings, icons
+    ├── resources/      #   strings, settings, icons
+    └── tools/          #   libsoup shim the simulator needs on some hosts
 ```
 
 `source-ciq1` and `source-ciq3` exist because `Application.Storage` and
