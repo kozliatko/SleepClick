@@ -5,6 +5,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.0] — 2026-09-04
+
+### Added
+- **Build-time sync token for the watch.** Garmin Connect only exposes app
+  settings for store-installed apps, so a sideloaded build had no way to
+  receive a token. `make build` now reads `watch/.token` and substitutes it
+  into `properties.xml`, restoring the file afterwards even when `monkeyc`
+  fails — the secret never reaches a tracked file. `watch/.token` and
+  `*.xml.bak` are gitignored, and `make token-help` prints the procedure.
+  Building without a token still succeeds and says so, instead of producing a
+  watch that silently never syncs.
+
+### Changed
+- **Every Caddy route is now a `handle` block, never `handle_path`.** `/api`
+  stripped its prefix while `/admin` kept it, so the backend saw a different
+  kind of path depending on the route. That asymmetry had already caused one
+  routing bug. Caddy now strips nothing and `server.js` matches
+  `/api/sessions` — the same path the browser and the watch ask for. Public
+  URLs are unchanged.
+- `/health` stays unrouted by Caddy, reachable only from inside the Docker
+  network for the container healthcheck.
+
+### Notes
+- Merging the nginx and backend containers into one was considered and
+  rejected: it would save ~8 MiB of RAM while coupling frontend and backend
+  deploy cadences, replacing a proven static file server with hand-written
+  path handling, and putting the PWA and the API in one crash domain.
+
+---
+
 ## [1.2.0] — 2026-09-02
 
 ### Added
