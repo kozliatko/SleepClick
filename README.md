@@ -153,7 +153,28 @@ docker compose exec backend node admin.js revoke 4
 Issue one token per device rather than per person, so a lost watch can be
 revoked without disturbing the others.
 
-### 2. Build and install the watch app
+### 2. Give the build the token
+
+In principle the token belongs in Garmin Connect, under the app's settings —
+the server URL is already baked in as a default, so the token is the only
+missing piece. In practice **Garmin Connect exposes app settings for
+store-installed apps only**, so a sideloaded build will usually show no
+settings at all.
+
+Hand it to the build instead, before building:
+
+```bash
+echo '<token>' > watch/.token
+```
+
+The build substitutes it into `properties.xml` and restores that file
+afterwards even when the compiler fails, so the secret never reaches a tracked
+file. `watch/.token` is gitignored. `make token-help` prints this reminder.
+
+Building without `.token` still succeeds and says so — the app just never
+syncs, which is worth knowing before you are standing there with the watch.
+
+### 3. Build and install the watch app
 
 Requires the Connect IQ SDK and a developer key (`make key` generates one).
 
@@ -167,23 +188,21 @@ make deploy DEVICE=fr935    # copies the .prg to a connected watch
 so it appears in the **activity list** (press START from the watch face), not
 in a separate Connect IQ menu.
 
-### 3. Enter the token
-
-The server URL is already baked in as a default. Only the token is missing —
-set it in Garmin Connect under the app's settings.
-
-Sideloaded apps usually do **not** expose their settings there — Garmin Connect
-shows them for store-installed apps only. When the fields are missing, hand the
-token to the build instead:
+Two more targets are worth knowing:
 
 ```bash
-echo '<token>' > watch/.token
-cd watch && make deploy DEVICE=fr935
+make check                  # build every device with -w -l 3, output discarded
+make sim DEVICE=fr935       # build and push into a running simulator
 ```
 
-The build substitutes it into `properties.xml`, then restores that file even if
-the compiler fails, so the secret never reaches a tracked file. `watch/.token`
-is gitignored. `make token-help` prints the same reminder.
+`check` is the one to run before committing. Every build already compiles at
+Monkey Types level 3 (strict); `check` just does it for both devices at once.
+The fr230 warnings about deprecated `AppBase.getProperty`/`setProperty` are
+expected and cannot be removed — on a Connect IQ 1.x device those are the only
+object store APIs that exist.
+
+For `sim`, the simulator has to be running first. On a headless machine that
+takes a little setting up: see [watch/SIMULATOR.md](watch/SIMULATOR.md).
 
 ### 4. Pull the records into the web app
 
