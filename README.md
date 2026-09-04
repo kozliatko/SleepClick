@@ -204,6 +204,35 @@ object store APIs that exist.
 For `sim`, the simulator has to be running first. On a headless machine that
 takes a little setting up: see [watch/SIMULATOR.md](watch/SIMULATOR.md).
 
+### Languages
+
+The watch app ships in English, Slovak, Czech, German, French, Italian, Polish
+and Spanish. The watch picks one from its own system language setting; Connect
+IQ has no API for an in-app switcher, so there is no setting to change.
+
+English is the base (`watch/resources/strings/strings.xml`) and also the
+fallback for any string a translation leaves out. Each other language lives in
+a sibling folder named with its Connect IQ qualifier:
+
+```
+watch/resources/strings/strings.xml        # English, base + fallback
+watch/resources-slo/strings/strings.xml    # Slovak
+watch/resources-deu/strings/strings.xml    # German, etc.
+```
+
+To add one, create `resources-<qualifier>/strings/strings.xml`, translate only
+the ids that differ, and add the qualifier to `<iq:languages>` in
+`manifest.xml`. **Both steps are needed** — a language missing from the
+manifest is dropped from the build with no warning at all.
+
+Do not list the language folders in `monkey.jungle`. `base.resourcePath` names
+the `resources` directory only, and the resource compiler finds the siblings
+itself; listing them merges every language into one set where the last one
+silently replaces the base.
+
+Button names stay untranslated because they are printed on the watch itself,
+so `START` and `DOWN` read the same in every language.
+
 ### 4. Pull the records into the web app
 
 Open **Statistics → Watch sync**, paste the same token and press *Fetch*.
@@ -256,7 +285,8 @@ Each token maps to exactly one user, and every query is scoped to that user, so 
     ├── source/         #   shared Monkey C code
     ├── source-ciq3/    #   Connect IQ 2.4+ platform layer (fr935)
     ├── source-ciq1/    #   Connect IQ 1.x platform layer (fr230)
-    ├── resources/      #   strings, settings, icons
+    ├── resources/      #   English strings, settings, icons
+    ├── resources-*/     #   translations, one folder per language
     └── tools/          #   libsoup shim the simulator needs on some hosts
 ```
 

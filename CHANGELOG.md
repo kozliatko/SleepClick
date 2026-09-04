@@ -18,6 +18,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   labels. That is product content for a Slovak-speaking user, not developer
   text.
 
+### Added
+- **The watch app is localized** into English, Slovak, Czech, German, French,
+  Italian, Polish and Spanish, using Connect IQ's own `resources-<lang>`
+  qualifier rather than anything hand-rolled. English is the base and the
+  fallback for untranslated ids; the watch picks a language from its system
+  setting. Costs 3 kB of the ~100 kB `.prg` for seven extra languages.
+- The awake state label drops to a smaller font when a translation is too wide
+  for the bezel at that height — "WACH" and "DESPIERTO" are not the same size.
+
 ### Removed
 - `watch/bin/sim` and `watch/bin/build-stub`. They patched the system libsoup
   libraries at hardcoded byte offsets to work around the libsoup2/libsoup3

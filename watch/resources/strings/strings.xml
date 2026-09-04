@@ -3,5 +3,15 @@
         <string id="AppName">SleepClick</string>
         <string id="SettingServerUrl">Server URL</string>
         <string id="SettingSyncToken">Sync token</string>
+        <string id="StateAsleep">ASLEEP</string>
+        <string id="StateAwake">AWAKE</string>
+        <string id="TimerUnits">h:min:s</string>
+        <string id="LabelWakeUps">WAKE-UPS</string>
+        <string id="HintSleepLong">DOWN +1   STOP end</string>
+        <string id="HintSleepMid">DOWN +1  STOP</string>
+        <string id="HintSleepShort">+1   STOP</string>
+        <string id="HintAwakeLong">START = begin sleep</string>
+        <string id="HintAwakeMid">START = sleep</string>
+        <string id="HintAwakeShort">START</string>
     </strings>
 </resources>

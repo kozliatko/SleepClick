@@ -1,0 +1,13 @@
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <strings>
+        <string id="SettingServerUrl">Adresa servera</string>
+        <string id="SettingSyncToken">Synchronizačný token</string>
+        <string id="StateAsleep">SPÍ</string>
+        <string id="StateAwake">HORE</string>
+        <string id="TimerUnits">hod:min:sek</string>
+        <string id="LabelWakeUps">PREBUD.</string>
+        <string id="HintSleepLong">DOWN +1   STOP koniec</string>
+        <string id="HintAwakeLong">START = začať spánok</string>
+        <string id="HintAwakeMid">START = spánok</string>
+    </strings>
+</resources>

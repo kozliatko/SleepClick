@@ -4,7 +4,10 @@ project.manifest = manifest.xml
 # Application.Storage / Application.Properties (Connect IQ 2.4+);
 # source-ciq1 uses the older AppBase object store, which is all a
 # Connect IQ 1.x device such as the fr230 provides.
-base.resourcePath = resources/drawables/drawables.xml;resources/strings/strings.xml;resources/settings/settings.xml;resources/properties/properties.xml
+# The directory, not the individual files: the resource compiler picks up
+# the resources-<lang> siblings on its own. Listing them here instead would
+# merge every language into one set and the last one would win.
+base.resourcePath = resources
 
 fr935.sourcePath = source;source-ciq3
 fr935.resourcePath = $(base.resourcePath)

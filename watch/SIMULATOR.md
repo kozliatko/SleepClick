@@ -15,8 +15,9 @@ virtual X server and is reached over VNC.
 # 1. virtual display (skip if already running)
 pgrep -x Xvfb || Xvfb :99 -screen 0 1280x800x24 &
 
-# 2. simulator
-DISPLAY=:99 ~/opt/connectiq-sdk/bin/simulator &
+# 2. simulator — the shim is not optional, see Gotchas
+LD_PRELOAD=~/opt/connectiq-sdk/soupfix.so DISPLAY=:99 \
+  ~/opt/connectiq-sdk/bin/simulator &
 
 # 3. remote access (skip if already running)
 pgrep -x x11vnc || x11vnc -display :99 -localhost -nopw -forever -shared -quiet -bg
@@ -47,7 +48,7 @@ ps -eo pid,etime,comm | grep -E 'Xvfb|simulator|x11vnc'
 | Piece | Command | Notes |
 |---|---|---|
 | Virtual display | `Xvfb :99 -screen 0 1280x800x24` | Everything below needs `DISPLAY=:99` |
-| Simulator | `~/opt/connectiq-sdk/bin/simulator` | `bin/connectiq` is a one-line wrapper for the same binary |
+| Simulator | `LD_PRELOAD=~/opt/connectiq-sdk/soupfix.so ~/opt/connectiq-sdk/bin/simulator` | `bin/connectiq` is a one-line wrapper for the same binary |
 | Remote access | `x11vnc -display :99 -localhost -nopw -forever -shared -quiet -bg` | `-localhost` means loopback only — reachable solely through the SSH tunnel, which is why there is no password |
 | App loader | `~/opt/connectiq-sdk/bin/monkeydo <file.prg> <device_id>` | Requires a running simulator |
 
@@ -139,10 +140,10 @@ sudo systemctl mask systemd-coredump.socket
 sudo systemctl disable --now apport.service
 ```
 
-**The libsoup shim may or may not be needed.** If the simulator aborts with
-`libsoup2 symbols detected`, both libsoup-2.4 and libsoup-3.0 have loaded and
-each has detected the other. It is a distribution packaging conflict, not a
-Garmin bug. `tools/soupfix.c` hides the two probed symbols:
+**The libsoup shim is required.** Starting the simulator plainly aborts with
+`libsoup2 symbols detected` and dumps core: both libsoup-2.4 and libsoup-3.0
+load and each detects the other. It is a distribution packaging conflict, not
+a Garmin bug. `tools/soupfix.c` hides the two probed symbols:
 
 ```bash
 gcc -shared -fPIC -o ~/opt/connectiq-sdk/soupfix.so tools/soupfix.c -ldl
@@ -151,8 +152,11 @@ LD_PRELOAD=~/opt/connectiq-sdk/soupfix.so DISPLAY=:99 \
 ```
 
 A prebuilt copy is kept at `~/opt/connectiq-sdk/soupfix.so`. The same shim
-applies to the SDK Manager. As of 2026-09-04 the simulator was running without
-it, so try plain first.
+applies to the SDK Manager.
+
+Note that the plain start does not merely fail — it writes a core dump, which
+is how a long-running session can take the disk to zero. Combine the shim with
+the core dump settings above.
 
 **Device bundles are mandatory.** A device with no bundle under
 `~/.Garmin/ConnectIQ/Devices/<id>/` makes the simulator crash on load rather
@@ -162,6 +166,22 @@ Garmin account login — there is no unauthenticated download. Never hand-write
 
 ---
 
+## Checking a translation
+
+The app ships eight languages and the device picks one from its own system
+language — there is no in-app switcher, because Connect IQ has no API for one.
+
+Changing the simulated language through **Settings → Language** needs a real
+pointer: the submenu does not open under `xdotool`, because with no window
+manager Qt never gets the hover it waits for. Over VNC it works normally.
+
+To check glyph rendering without touching the menu, put the accented text in
+the base (unqualified) `resources/strings/strings.xml` of a throwaway copy and
+load that — the base set is what an English simulator shows. The `ww` font set
+both devices use covers Latin Extended-A, so Slovak, Czech, Polish, German,
+French, Spanish and Italian accents all render in `FONT_MEDIUM` and
+`FONT_XTINY`; verified 2026-09-04.
+
 ## Troubleshooting
 
 | Symptom | Cause |
@@ -169,7 +189,7 @@ Garmin account login — there is no unauthenticated download. Never hand-write
 | `Invalid device id specified` | Device is not in `manifest.xml`, or its bundle was never downloaded |
 | `monkeydo` returns instantly | Simulator is not running |
 | Simulator exits on app load | Missing device bundle |
-| `libsoup2 symbols detected` | Build and preload `tools/soupfix.c` |
+| `libsoup2 symbols detected` | `LD_PRELOAD` is missing — see the shim above |
 | Clicks do nothing | Window moved — re-read coordinates from a fresh screenshot |
 | Key presses do nothing | Expected; no window manager. Click instead |
 | VNC refuses the connection | SSH tunnel is down, or x11vnc is not running |

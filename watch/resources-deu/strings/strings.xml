@@ -1,0 +1,13 @@
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <strings>
+        <string id="SettingServerUrl">Server-URL</string>
+        <string id="SettingSyncToken">Sync-Token</string>
+        <string id="StateAsleep">SCHLÄFT</string>
+        <string id="StateAwake">WACH</string>
+        <string id="TimerUnits">Std:Min:Sek</string>
+        <string id="LabelWakeUps">WACHPHASEN</string>
+        <string id="HintSleepLong">DOWN +1   STOP Ende</string>
+        <string id="HintAwakeLong">START = Schlaf beginnen</string>
+        <string id="HintAwakeMid">START = Schlaf</string>
+    </strings>
+</resources>

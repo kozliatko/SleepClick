@@ -21,10 +21,40 @@ class MainView extends WatchUi.View {
     //! Drives the once-a-second redraw
     private var _timer as Timer.Timer;
 
+    // Strings are read once here rather than on every draw: onUpdate runs
+    // once a second, and loadResource is not free.
+    //! "asleep" state label
+    private var _asleep as String;
+    //! "awake" state label
+    private var _awake as String;
+    //! Unit label under the timer
+    private var _units as String;
+    //! Prefix of the wake-up counter
+    private var _wakeUpsLabel as String;
+    //! Button hints for the sleeping screen, longest variant first
+    private var _hintSleep as Array<String>;
+    //! Button hints for the awake screen, longest variant first
+    private var _hintAwake as Array<String>;
+
     //! Constructor
     public function initialize() {
         View.initialize();
         _timer = new Timer.Timer();
+
+        _asleep = WatchUi.loadResource(Rez.Strings.StateAsleep) as String;
+        _awake = WatchUi.loadResource(Rez.Strings.StateAwake) as String;
+        _units = WatchUi.loadResource(Rez.Strings.TimerUnits) as String;
+        _wakeUpsLabel = WatchUi.loadResource(Rez.Strings.LabelWakeUps) as String;
+        _hintSleep = [
+            WatchUi.loadResource(Rez.Strings.HintSleepLong) as String,
+            WatchUi.loadResource(Rez.Strings.HintSleepMid) as String,
+            WatchUi.loadResource(Rez.Strings.HintSleepShort) as String
+        ] as Array<String>;
+        _hintAwake = [
+            WatchUi.loadResource(Rez.Strings.HintAwakeLong) as String,
+            WatchUi.loadResource(Rez.Strings.HintAwakeMid) as String,
+            WatchUi.loadResource(Rez.Strings.HintAwakeShort) as String
+        ] as Array<String>;
     }
 
     //! Handle the layout being loaded
@@ -134,7 +164,7 @@ class MainView extends WatchUi.View {
 
         // Status label
         dc.setColor(Palette.DIM, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, h * 32 / 100, Graphics.FONT_XTINY, "SPI",
+        dc.drawText(cx, h * 32 / 100, Graphics.FONT_XTINY, _asleep,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Live timer — big amber digits
@@ -159,7 +189,7 @@ class MainView extends WatchUi.View {
 
         // Unit label
         dc.setColor(Palette.DIM, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, h * 61 / 100, Graphics.FONT_XTINY, "hod:min:sek",
+        dc.drawText(cx, h * 61 / 100, Graphics.FONT_XTINY, _units,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Divider
@@ -170,14 +200,14 @@ class MainView extends WatchUi.View {
         // Wake-up counter
         dc.setColor(Palette.MUTED, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, h * 77 / 100, Graphics.FONT_XTINY,
-            "PREBUD. " + _wakeUps.toString() + "x",
+            _wakeUpsLabel + " " + _wakeUps.toString() + "x",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Button hints — the round bezel narrows sharply here, so pick the
         // longest variant that still fits the chord at this height.
         var hintY = h * 89 / 100;
         var hint = _fitText(dc, Graphics.FONT_XTINY, _usableWidth(w, h, hintY),
-            ["DOWN +1   STOP koniec", "DOWN +1  STOP", "+1   STOP"] as Array<String>);
+            _hintSleep);
         dc.setColor(Palette.DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, hintY, Graphics.FONT_XTINY, hint,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -195,18 +225,25 @@ class MainView extends WatchUi.View {
         var stateY = h * 42 / 100;
         var sunR = 14;
         var gap = 12;
-        var textW = dc.getTextWidthInPixels("HORE", Graphics.FONT_MEDIUM);
+        // Translations vary a lot in length -- "WACH" against "DESPIERTO" --
+        // so drop a font size rather than let the label run off the bezel.
+        var font = Graphics.FONT_MEDIUM;
+        var textW = dc.getTextWidthInPixels(_awake, font);
+        if (2 * sunR + gap + textW > _usableWidth(w, h, stateY)) {
+            font = Graphics.FONT_SMALL;
+            textW = dc.getTextWidthInPixels(_awake, font);
+        }
         var left = cx - (2 * sunR + gap + textW) / 2;
 
         _drawSun(dc, left + sunR, stateY, sunR);
 
         dc.setColor(Palette.STATE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(left + 2 * sunR + gap, stateY, Graphics.FONT_MEDIUM, "HORE",
+        dc.drawText(left + 2 * sunR + gap, stateY, font, _awake,
             Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var hintY = h * 66 / 100;
         var hint = _fitText(dc, Graphics.FONT_XTINY, _usableWidth(w, h, hintY),
-            ["START = zacat spanok", "START = spanok", "START"] as Array<String>);
+            _hintAwake);
         dc.setColor(Palette.MUTED, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, hintY, Graphics.FONT_XTINY, hint,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
