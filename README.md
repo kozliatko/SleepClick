@@ -172,9 +172,18 @@ in a separate Connect IQ menu.
 The server URL is already baked in as a default. Only the token is missing —
 set it in Garmin Connect under the app's settings.
 
-Sideloaded apps do not always expose their settings there. If the fields are
-missing, put the token into `watch/resources/properties/properties.xml` and
-rebuild. Keep that out of version control.
+Sideloaded apps usually do **not** expose their settings there — Garmin Connect
+shows them for store-installed apps only. When the fields are missing, hand the
+token to the build instead:
+
+```bash
+echo '<token>' > watch/.token
+cd watch && make deploy DEVICE=fr935
+```
+
+The build substitutes it into `properties.xml`, then restores that file even if
+the compiler fails, so the secret never reaches a tracked file. `watch/.token`
+is gitignored. `make token-help` prints the same reminder.
 
 ### 4. Pull the records into the web app
 
