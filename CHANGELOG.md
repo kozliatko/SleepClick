@@ -9,11 +9,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - All developer-facing text is English: comments, build script output, the
-  gitleaks config and the security workflow's step names. User-facing copy is
-  untouched — the SK/EN strings in `i18n.js`, the Slovak markup in
-  `index.html` and `backend/admin.html` (both `lang="sk"`), the PWA name in
-  `manifest.json`, and the watch's on-screen labels are product content, not
-  comments.
+  gitleaks config and the security workflow's step names.
+- The admin UI at `/admin` is in English. It had no translation mechanism, so
+  its Slovak was hardcoded rather than localized; the operator-facing tool now
+  matches the rest of the developer surface.
+- Still Slovak, deliberately: the SK/EN strings in `i18n.js`, the markup in
+  `index.html`, the PWA name in `manifest.json`, and the watch's on-screen
+  labels. That is product content for a Slovak-speaking user, not developer
+  text.
 
 ### Removed
 - `watch/bin/sim` and `watch/bin/build-stub`. They patched the system libsoup

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="sk">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>SleepClick — správa tokenov</title>
+<title>SleepClick — token management</title>
 <style>
   :root {
     --bg: #0d1117; --card: #161b22; --border: #2a3038;
@@ -76,16 +76,16 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>SleepClick — správa tokenov</h1>
-  <div class="sub">Každý používateľ vidí výhradne vlastné dáta. Token vydávaj na zariadenie, nie na osobu — potom sa dá odvolať jedno bez zásahu do ostatných.</div>
+  <h1>SleepClick — token management</h1>
+  <div class="sub">Every user sees only their own data. Issue one token per device rather than per person, so a lost watch can be revoked without disturbing the others.</div>
 
   <div id="users"></div>
 
   <div class="card">
-    <div class="card-head"><span class="uname">Nový používateľ</span></div>
+    <div class="card-head"><span class="uname">New user</span></div>
     <div class="row">
-      <input id="newUser" placeholder="meno" maxlength="40" autocomplete="off">
-      <button class="primary" id="addUser">Pridať</button>
+      <input id="newUser" placeholder="name" maxlength="40" autocomplete="off">
+      <button class="primary" id="addUser">Add</button>
     </div>
     <div class="msg" id="userMsg"></div>
   </div>
@@ -115,7 +115,7 @@ function render(users) {
   host.innerHTML = '';
 
   if (users.length === 0) {
-    host.innerHTML = '<div class="card"><div class="empty">Zatiaľ žiadni používatelia.</div></div>';
+    host.innerHTML = '<div class="card"><div class="empty">No users yet.</div></div>';
     return;
   }
 
@@ -126,21 +126,21 @@ function render(users) {
     const rows = u.tokens.map((t) => `
       <tr>
         <td class="tid">#${t.id}</td>
-        <td class="${t.label ? 'label' : 'no-label'}">${t.label ? esc(t.label) : 'bez označenia'}</td>
-        <td class="${t.revoked ? 'revoked' : 'active'}">${t.revoked ? 'odvolaný' : 'aktívny'}</td>
-        <td>${t.revoked ? '' : `<button class="danger" data-revoke="${t.id}">Odvolať</button>`}</td>
+        <td class="${t.label ? 'label' : 'no-label'}">${t.label ? esc(t.label) : 'unlabelled'}</td>
+        <td class="${t.revoked ? 'revoked' : 'active'}">${t.revoked ? 'revoked' : 'active'}</td>
+        <td>${t.revoked ? '' : `<button class="danger" data-revoke="${t.id}">Revoke</button>`}</td>
       </tr>`).join('');
 
     card.innerHTML = `
       <div class="card-head">
         <span class="uname">${esc(u.name)}</span>
-        <span class="meta">${u.sessions} spánkov</span>
+        <span class="meta">${u.sessions} sleeps</span>
       </div>
-      ${rows ? `<table>${rows}</table>` : '<div class="empty">Žiadne tokeny.</div>'}
+      ${rows ? `<table>${rows}</table>` : '<div class="empty">No tokens.</div>'}
       <div class="row" style="margin-top:10px">
-        <input placeholder="označenie zariadenia, napr. Janove fr935"
+        <input placeholder="device label, e.g. Janka's fr935"
                maxlength="40" autocomplete="off" data-label="${u.id}">
-        <button data-mint="${u.id}">Vydať token</button>
+        <button data-mint="${u.id}">Mint token</button>
       </div>
       <div class="msg" data-msg="${u.id}"></div>`;
     host.appendChild(card);
@@ -152,7 +152,7 @@ async function refresh() {
     const { users } = await api('/admin/data');
     render(users);
   } catch (e) {
-    $('users').innerHTML = '<div class="card"><div class="msg err">Načítanie zlyhalo: ' + esc(e.message) + '</div></div>';
+    $('users').innerHTML = '<div class="card"><div class="msg err">Could not load: ' + esc(e.message) + '</div></div>';
   }
 }
 
@@ -171,18 +171,18 @@ document.addEventListener('click', async (ev) => {
       });
       msg.className = 'msg';
       msg.innerHTML = `<div class="token-out">
-        <div class="why">Ukladám iba hash — token sa už znovu zobraziť nedá. Skopíruj ho teraz.</div>
+        <div class="why">Only the hash is stored — this token cannot be shown again. Copy it now.</div>
         <code>${esc(token)}</code></div>`;
       // Re-render would wipe the token, so refresh only the counts around it.
     } catch (e) {
       msg.className = 'msg err';
-      msg.textContent = 'Nepodarilo sa: ' + e.message;
+      msg.textContent = 'Failed: ' + e.message;
     }
     return;
   }
 
   if (revoke) {
-    if (!confirm('Odvolať token #' + revoke + '? Zariadenie prestane synchronizovať okamžite.')) return;
+    if (!confirm('Revoke token #' + revoke + '? The device stops syncing immediately.')) return;
     try {
       await api('/admin/revoke', {
         method: 'POST',
@@ -190,7 +190,7 @@ document.addEventListener('click', async (ev) => {
       });
       refresh();
     } catch (e) {
-      alert('Nepodarilo sa: ' + e.message);
+      alert('Failed: ' + e.message);
     }
   }
 });
@@ -199,18 +199,18 @@ $('addUser').addEventListener('click', async () => {
   const input = $('newUser');
   const msg = $('userMsg');
   const name = input.value.trim();
-  if (!name) { msg.className = 'msg err'; msg.textContent = 'Zadaj meno.'; return; }
+  if (!name) { msg.className = 'msg err'; msg.textContent = 'Enter a name.'; return; }
   try {
     await api('/admin/users', { method: 'POST', body: JSON.stringify({ name }) });
     input.value = '';
     msg.className = 'msg ok';
-    msg.textContent = 'Používateľ pridaný.';
+    msg.textContent = 'User added.';
     refresh();
   } catch (e) {
     msg.className = 'msg err';
-    msg.textContent = e.message === 'name_taken' ? 'Také meno už existuje.'
-                    : e.message === 'invalid_name' ? 'Meno smie mať len písmená, číslice, medzeru, bodku, pomlčku alebo podčiarkovník.'
-                    : 'Nepodarilo sa: ' + e.message;
+    msg.textContent = e.message === 'name_taken' ? 'That name is already taken.'
+                    : e.message === 'invalid_name' ? 'A name may contain only letters, digits, spaces, dots, hyphens and underscores.'
+                    : 'Failed: ' + e.message;
   }
 });
 
