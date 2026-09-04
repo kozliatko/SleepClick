@@ -2,11 +2,16 @@ KEY    := $(HOME)/.garmin/developer_key.der
 JUNGLE := monkey.jungle
 OUT    := build/SleepClick-$(DEVICE).prg
 DEVICE := fr935
+DEVICES := fr935 fr230
 SDK    := $(HOME)/opt/connectiq-sdk/bin
 PROPS  := resources/properties/properties.xml
 TOKEN  := .token
+# Monkey Types level 3 = strict: the compiler refuses to infer anything it was
+# not told. The app builds clean at this level, so keep it here rather than as
+# something to remember to pass by hand.
+TYPECHECK := 3
 
-.PHONY: build sim deploy clean key token-help
+.PHONY: build sim check deploy clean key token-help
 
 # Garmin Connect only exposes app settings for store-installed apps, so a
 # sideloaded build has no way to receive the sync token at runtime. If a
@@ -31,18 +36,17 @@ endef
 build:
 	@mkdir -p build
 	$(call with_token)
-	@$(SDK)/monkeyc -f $(JUNGLE) -o $(OUT) -y $(KEY) -d $(DEVICE) -w; \
+	@$(SDK)/monkeyc -f $(JUNGLE) -o $(OUT) -y $(KEY) -d $(DEVICE) -w -l $(TYPECHECK); \
 	  rc=$$?; \
 	  if [ -f $(PROPS).bak ]; then mv $(PROPS).bak $(PROPS); fi; \
 	  exit $$rc
 
-sim:
-	@mkdir -p build
-	$(call with_token)
-	@$(SDK)/monkeyc -f $(JUNGLE) -o $(OUT) -y $(KEY) -d $(DEVICE)sim -w; \
-	  rc=$$?; \
-	  if [ -f $(PROPS).bak ]; then mv $(PROPS).bak $(PROPS); fi; \
-	  exit $$rc
+# Load the app into an already-running ConnectIQ simulator. There is no
+# separate simulator build: the device .prg is what monkeydo pushes across.
+# (This target used to compile for a device id of "$(DEVICE)sim", which the
+# compiler has never accepted — it always failed with "Invalid device id".)
+sim: build
+	@$(SDK)/monkeydo $(OUT) $(DEVICE)
 
 deploy: build
 	@MOUNT=$$(ls -d /media/$$USER/GARMIN /run/media/$$USER/GARMIN /media/GARMIN 2>/dev/null | head -1); \
@@ -55,6 +59,20 @@ deploy: build
 	cp $(OUT) $$MOUNT/GARMIN/APPS/; \
 	sync; \
 	echo "Nahraté: $(OUT) -> $$MOUNT/GARMIN/APPS/"
+
+# Build every supported device with warnings and strict type checking, without
+# touching the token or the build/ output. The fr230 lines about deprecated
+# AppBase.getProperty/setProperty are expected: on a Connect IQ 1.x device
+# those are the only object store APIs that exist.
+check:
+	@rc=0; \
+	for d in $(DEVICES); do \
+	  echo "== $$d"; \
+	  $(SDK)/monkeyc -f $(JUNGLE) -o /tmp/sleepclick-check-$$d.prg -y $(KEY) \
+	    -d $$d -w -l $(TYPECHECK) || rc=1; \
+	done; \
+	rm -f /tmp/sleepclick-check-*.prg; \
+	exit $$rc
 
 token-help:
 	@echo "Token vydaj v admine na https://sleep.kozliatko.sk/admin a ulož ho:"

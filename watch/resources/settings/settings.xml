@@ -1,8 +1,10 @@
-<settings>
-  <setting propertyKey="@Properties.serverUrl" title="@Strings.SettingServerUrl">
-    <settingConfig type="alphaNumeric" maxLength="128" />
-  </setting>
-  <setting propertyKey="@Properties.syncToken" title="@Strings.SettingSyncToken">
-    <settingConfig type="alphaNumeric" maxLength="128" />
-  </setting>
-</settings>
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <settings>
+        <setting propertyKey="@Properties.serverUrl" title="@Strings.SettingServerUrl">
+            <settingConfig type="alphaNumeric" maxLength="128" />
+        </setting>
+        <setting propertyKey="@Properties.syncToken" title="@Strings.SettingSyncToken">
+            <settingConfig type="alphaNumeric" maxLength="128" />
+        </setting>
+    </settings>
+</resources>

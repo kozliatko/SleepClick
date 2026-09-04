@@ -1,5 +1,7 @@
-<strings>
-  <string id="AppName">SleepClick</string>
-  <string id="SettingServerUrl">Server URL</string>
-  <string id="SettingSyncToken">Sync token</string>
-</strings>
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <strings>
+        <string id="AppName">SleepClick</string>
+        <string id="SettingServerUrl">Server URL</string>
+        <string id="SettingSyncToken">Sync token</string>
+    </strings>
+</resources>

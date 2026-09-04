@@ -1,4 +1,6 @@
-<properties>
-  <property id="serverUrl" type="string">https://sleep.kozliatko.sk/api/sessions</property>
-  <property id="syncToken" type="string"></property>
-</properties>
+<resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <properties>
+        <property id="serverUrl" type="string">https://sleep.kozliatko.sk/api/sessions</property>
+        <property id="syncToken" type="string"></property>
+    </properties>
+</resources>
