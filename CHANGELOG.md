@@ -5,6 +5,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.1] — 2026-09-04
+
+### Fixed
+- **Two unhandled exceptions in the watch app.** `Storage.setValue` throws once
+  the object store is full, and `makeWebRequest` throws
+  `InvalidOptionsException` / `SymbolNotAllowedException`. Neither was caught,
+  so either would end the app with an Unhandled Exception — the first while
+  saving a just-recorded sleep. Both are caught and logged now. This costs
+  336 bytes of bytecode out of ~100 kB.
+- **Strict type checking did not pass.** `Persistence.writeValue` handed an
+  `Object` to a parameter typed `Storage.ValueType`, so `monkeyc -l 3` failed
+  on both devices. Narrowed in the platform layer. Every build now compiles at
+  level 3 so this cannot silently regress.
+- **`make sim` never worked.** It compiled for a device id of `<device>sim`,
+  which the compiler has always rejected. The target now builds and pushes
+  through `monkeydo`.
+- **Launcher icon was 24×24** against the 40×40 both devices ask for, warned
+  about on every build. Rendered from the PWA's `icon.svg`, so watch and phone
+  carry the same icon. Costs nothing in the `.prg`: the compiler scaled the
+  small icon to 40×40 anyway, it just looked soft.
+
+### Changed
+- Watch code follows the Monkey C coding conventions: one class per file
+  (`SyncSession` moved out of `SyncManager.mc`), the underscore prefix reserved
+  for private class members, `//!` doc comments with `@param`/`@return`, and
+  the `<resources>` schema root on every resource file rather than only
+  `drawables.xml`. None of this changes the compiled output.
+- Removed `SessionStorage.getAll()`, which nothing called.
+
+### Added
+- `make check` builds every supported device with warnings and strict type
+  checking in one command.
+- [`watch/SIMULATOR.md`](watch/SIMULATOR.md) — runbook for the headless
+  Connect IQ simulator: Xvfb, VNC, loading a `.prg`, and the failure modes that
+  waste an afternoon (keyboard input silently does nothing without a window
+  manager; `monkeydo` exit codes report success on a dropped connection).
+- `watch/tools/soupfix.c` — the libsoup2/libsoup3 shim some hosts need to start
+  the simulator, previously kept only in a scratch directory.
+
+### Documentation
+- The watch setup section put "enter the token" after "build and install",
+  which meant building twice. Reordered, and it now documents the `.token`
+  build step instead of hand-editing `properties.xml` — advice that invited
+  committing a secret.
+
+---
+
 ## [1.3.0] — 2026-09-04
 
 ### Added
